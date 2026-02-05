@@ -49,7 +49,7 @@ export function TenantDialog({ open, onOpenChange, tenant, availableOffices, onS
       setFormData({
         ...formData,
         officeId,
-        monthlyTotal: office.monthlyRent + office.charges
+        monthlyTotal: office.monthlyRent
       });
     } else {
       setFormData({ ...formData, officeId });

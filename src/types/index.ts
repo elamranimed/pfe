@@ -3,14 +3,11 @@ export interface Office {
   number: string;
   floor: number;
   type: 'individual' | 'open-space' | 'meeting-room';
-  surface: number; // m²
   monthlyRent: number; // MAD
-  charges: number; // MAD
-  status: 'available' | 'occupied' | 'maintenance';
-  hasAC: boolean;
-  hasHeating: boolean;
-  internetAccess: boolean;
-  furnished: boolean;
+  status: 'available' | 'occupied' | 'renovation';
+  tenantName?: string;
+  tenantPhone?: string;
+  tenantEmail?: string;
   tenantId?: string;
 }
 

@@ -17,7 +17,6 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import type { Office } from '@/types';
 
 interface OfficeDialogProps {
@@ -33,14 +32,11 @@ export function OfficeDialog({ open, onOpenChange, office, onSave }: OfficeDialo
       number: '',
       floor: 1,
       type: 'individual',
-      surface: 0,
       monthlyRent: 0,
-      charges: 0,
       status: 'available',
-      hasAC: false,
-      hasHeating: false,
-      internetAccess: false,
-      furnished: false,
+      tenantName: '',
+      tenantPhone: '',
+      tenantEmail: '',
     }
   );
 
@@ -74,6 +70,17 @@ export function OfficeDialog({ open, onOpenChange, office, onSave }: OfficeDialo
               />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="tenantName">Nom Locataire</Label>
+              <Input 
+                id="tenantName" 
+                value={formData.tenantName || ''} 
+                onChange={e => setFormData({ ...formData, tenantName: e.target.value })} 
+                placeholder="Nom du locataire (optionnel)"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
               <Label htmlFor="floor">Étage</Label>
               <Input 
                 id="floor" 
@@ -83,6 +90,25 @@ export function OfficeDialog({ open, onOpenChange, office, onSave }: OfficeDialo
                 required 
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="tenantPhone">Téléphone</Label>
+              <Input 
+                id="tenantPhone" 
+                value={formData.tenantPhone || ''} 
+                onChange={e => setFormData({ ...formData, tenantPhone: e.target.value })} 
+                placeholder="+212 XXX XXX XXX"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="tenantEmail">Email</Label>
+            <Input 
+              id="tenantEmail" 
+              type="email"
+              value={formData.tenantEmail || ''} 
+              onChange={e => setFormData({ ...formData, tenantEmail: e.target.value })} 
+              placeholder="email@exemple.com"
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="type">Type</Label>
@@ -95,94 +121,36 @@ export function OfficeDialog({ open, onOpenChange, office, onSave }: OfficeDialo
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="individual">Individuel</SelectItem>
-                <SelectItem value="open-space">Open Space</SelectItem>
-                <SelectItem value="meeting-room">Salle de réunion</SelectItem>
+                <SelectItem value="centre-de-formation">Centre de formation</SelectItem>
+              
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="surface">Surface (m²)</Label>
-              <Input 
-                id="surface" 
-                type="number" 
-                value={formData.surface} 
-                onChange={e => setFormData({ ...formData, surface: parseInt(e.target.value) })} 
-                required 
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="status">Statut</Label>
-              <Select 
-                value={formData.status} 
-                onValueChange={(v: any) => setFormData({ ...formData, status: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Statut" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="available">Disponible</SelectItem>
-                  <SelectItem value="occupied">Occupé</SelectItem>
-                  <SelectItem value="maintenance">Maintenance</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="status">Statut</Label>
+            <Select 
+              value={formData.status} 
+              onValueChange={(v: any) => setFormData({ ...formData, status: v })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="available">Vide/Disponible</SelectItem>
+                <SelectItem value="occupied">Occupé</SelectItem>
+                <SelectItem value="renovation">Aménagement</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="rent">Loyer (MAD)</Label>
-              <Input 
-                id="rent" 
-                type="number" 
-                value={formData.monthlyRent} 
-                onChange={e => setFormData({ ...formData, monthlyRent: parseInt(e.target.value) })} 
-                required 
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="charges">Charges (MAD)</Label>
-              <Input 
-                id="charges" 
-                type="number" 
-                value={formData.charges} 
-                onChange={e => setFormData({ ...formData, charges: parseInt(e.target.value) })} 
-                required 
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4 pt-2">
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="hasAC" 
-                checked={formData.hasAC} 
-                onCheckedChange={(v: boolean) => setFormData({ ...formData, hasAC: v })} 
-              />
-              <Label htmlFor="hasAC">Climatisation</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="hasHeating" 
-                checked={formData.hasHeating} 
-                onCheckedChange={(v: boolean) => setFormData({ ...formData, hasHeating: v })} 
-              />
-              <Label htmlFor="hasHeating">Chauffage</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="internet" 
-                checked={formData.internetAccess} 
-                onCheckedChange={(v: boolean) => setFormData({ ...formData, internetAccess: v })} 
-              />
-              <Label htmlFor="internet">Internet</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="furnished" 
-                checked={formData.furnished} 
-                onCheckedChange={(v: boolean) => setFormData({ ...formData, furnished: v })} 
-              />
-              <Label htmlFor="furnished">Meublé</Label>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="rent">Cotisation (MAD)</Label>
+            <Input 
+              id="rent" 
+              type="number" 
+              value={formData.monthlyRent} 
+              onChange={e => setFormData({ ...formData, monthlyRent: parseInt(e.target.value) })} 
+              required 
+            />
           </div>
           <DialogFooter>
             <Button type="submit">Enregistrer</Button>

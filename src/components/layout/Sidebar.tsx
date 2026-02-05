@@ -2,7 +2,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Building, 
-  Users, 
   CreditCard, 
   Receipt,
   Building2
@@ -12,7 +11,6 @@ import { cn } from '@/lib/utils';
 const navItems = [
   { icon: LayoutDashboard, label: 'Tableau de bord', path: '/' },
   { icon: Building, label: 'Bureaux', path: '/offices' },
-  { icon: Users, label: 'Locataires', path: '/tenants' },
   { icon: CreditCard, label: 'Paiements', path: '/payments' },
   { icon: Receipt, label: 'Dépenses', path: '/expenses' },
 ];

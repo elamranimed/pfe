@@ -80,7 +80,6 @@ export function TenantDetails() {
               <h4 className="text-sm font-medium mb-2">Bureau assigné</h4>
               <div className="flex items-center justify-between bg-gray-50 p-3 rounded-md">
                 <span>Bureau {office?.number} ({office?.type})</span>
-                <Badge variant="outline">{office?.surface} m²</Badge>
               </div>
             </div>
           </CardContent>

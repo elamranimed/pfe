@@ -6,14 +6,11 @@ export const mockOffices: Office[] = [
     number: 'A101',
     floor: 1,
     type: 'individual',
-    surface: 25,
     monthlyRent: 5000,
-    charges: 500,
     status: 'occupied',
-    hasAC: true,
-    hasHeating: true,
-    internetAccess: true,
-    furnished: true,
+    tenantName: 'Maroc Digital Solutions',
+    tenantPhone: '+212 661 234 567',
+    tenantEmail: 'a.benali@marocdigital.ma',
     tenantId: 'ten-001'
   },
   {
@@ -21,14 +18,11 @@ export const mockOffices: Office[] = [
     number: 'A102',
     floor: 1,
     type: 'individual',
-    surface: 30,
     monthlyRent: 6000,
-    charges: 600,
     status: 'occupied',
-    hasAC: true,
-    hasHeating: true,
-    internetAccess: true,
-    furnished: false,
+    tenantName: 'Atlas Consulting',
+    tenantPhone: '+212 662 345 678',
+    tenantEmail: 'f.elamrani@atlasconsulting.ma',
     tenantId: 'ten-002'
   },
   {
@@ -36,14 +30,11 @@ export const mockOffices: Office[] = [
     number: 'A103',
     floor: 1,
     type: 'open-space',
-    surface: 80,
     monthlyRent: 12000,
-    charges: 1200,
     status: 'occupied',
-    hasAC: true,
-    hasHeating: true,
-    internetAccess: true,
-    furnished: true,
+    tenantName: 'Casablanca Tech Hub',
+    tenantPhone: '+212 663 456 789',
+    tenantEmail: 'y.tazi@casatechhub.ma',
     tenantId: 'ten-003'
   },
   {
@@ -51,28 +42,19 @@ export const mockOffices: Office[] = [
     number: 'B201',
     floor: 2,
     type: 'individual',
-    surface: 20,
     monthlyRent: 4500,
-    charges: 450,
-    status: 'available',
-    hasAC: true,
-    hasHeating: false,
-    internetAccess: true,
-    furnished: false
+    status: 'available'
   },
   {
     id: 'off-005',
     number: 'B202',
     floor: 2,
     type: 'individual',
-    surface: 28,
     monthlyRent: 5500,
-    charges: 550,
     status: 'occupied',
-    hasAC: true,
-    hasHeating: true,
-    internetAccess: true,
-    furnished: true,
+    tenantName: 'Rabat Import Export',
+    tenantPhone: '+212 664 567 890',
+    tenantEmail: 'k.idrissi@rabatimport.ma',
     tenantId: 'ten-004'
   },
   {
@@ -80,28 +62,19 @@ export const mockOffices: Office[] = [
     number: 'B203',
     floor: 2,
     type: 'meeting-room',
-    surface: 40,
     monthlyRent: 8000,
-    charges: 800,
-    status: 'maintenance',
-    hasAC: true,
-    hasHeating: true,
-    internetAccess: true,
-    furnished: true
+    status: 'renovation'
   },
   {
     id: 'off-007',
     number: 'C301',
     floor: 3,
     type: 'open-space',
-    surface: 100,
     monthlyRent: 15000,
-    charges: 1500,
     status: 'occupied',
-    hasAC: true,
-    hasHeating: true,
-    internetAccess: true,
-    furnished: true,
+    tenantName: 'Fès Artisanat SARL',
+    tenantPhone: '+212 665 678 901',
+    tenantEmail: 'n.chraibi@fesartisanat.ma',
     tenantId: 'ten-005'
   },
   {
@@ -109,28 +82,19 @@ export const mockOffices: Office[] = [
     number: 'C302',
     floor: 3,
     type: 'individual',
-    surface: 22,
     monthlyRent: 4800,
-    charges: 480,
-    status: 'available',
-    hasAC: false,
-    hasHeating: false,
-    internetAccess: true,
-    furnished: false
+    status: 'available'
   },
   {
     id: 'off-009',
     number: 'C303',
     floor: 3,
     type: 'individual',
-    surface: 35,
     monthlyRent: 7000,
-    charges: 700,
     status: 'occupied',
-    hasAC: true,
-    hasHeating: true,
-    internetAccess: true,
-    furnished: true,
+    tenantName: 'Tanger Logistics',
+    tenantPhone: '+212 666 789 012',
+    tenantEmail: 'o.benjelloun@tangerlogistics.ma',
     tenantId: 'ten-006'
   },
   {
@@ -138,14 +102,8 @@ export const mockOffices: Office[] = [
     number: 'D401',
     floor: 4,
     type: 'meeting-room',
-    surface: 50,
     monthlyRent: 9000,
-    charges: 900,
-    status: 'available',
-    hasAC: true,
-    hasHeating: true,
-    internetAccess: true,
-    furnished: true
+    status: 'available'
   }
 ];
 
