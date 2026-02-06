@@ -28,7 +28,7 @@ import { OfficeDialog } from '@/components/offices/OfficeDialog';
 import type { Office } from '@/types';
 
 export function Offices() {
-  const { offices, tenants, addOffice, updateOffice, deleteOffice } = useData();
+  const { offices, addOffice, updateOffice, deleteOffice } = useData();
   const [filter, setFilter] = useState<string>('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentOffice, setCurrentOffice] = useState<Office | null>(null);
@@ -127,11 +127,11 @@ export function Offices() {
                       variant={office.status === 'available' ? 'default' : office.status === 'occupied' ? 'secondary' : 'outline'}
                       className={
                         office.status === 'available' ? 'bg-green-600 hover:bg-green-700' :
-                        office.status === 'occupied' ? 'bg-blue-600 hover:bg-blue-700' :
+                        office.status === 'occupied' ? 'bg-blue-600 hover:bg-blue-700 text-white' :
                         'bg-yellow-500 hover:bg-yellow-600 text-white'
                       }
                     >
-                      {office.status === 'available' ? 'Vide/Disponible' :
+                      {office.status === 'available' ? 'Disponible' :
                        office.status === 'occupied' ? 'Occupé' : 'Aménagement'}
                     </Badge>
                   </TableCell>

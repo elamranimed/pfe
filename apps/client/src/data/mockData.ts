@@ -117,7 +117,7 @@ export const mockTenants: Tenant[] = [
     officeId: 'off-001',
     contractStart: '2025-01-01',
     contractEnd: '2026-12-31',
-    monthlyTotal: 5500,
+    monthlyTotal: 250,
     balance: 0,
     status: 'active'
   },
@@ -347,7 +347,7 @@ export const mockExpenses: Expense[] = [
     category: 'electricity',
     description: 'Facture électricité - Janvier 2026',
     amount: 8500,
-    supplier: 'LYDEC',
+    supplier: 'RADEEF',
     status: 'paid'
   },
   {
@@ -356,7 +356,7 @@ export const mockExpenses: Expense[] = [
     category: 'water',
     description: 'Facture eau - Janvier 2026',
     amount: 1200,
-    supplier: 'LYDEC',
+    supplier: 'RADEEF',
     status: 'paid'
   },
   {
@@ -374,7 +374,7 @@ export const mockExpenses: Expense[] = [
     category: 'salary',
     description: 'Salaire concierge - Janvier 2026',
     amount: 4500,
-    supplier: 'Mohammed Alaoui',
+    supplier: 'Ahmed',
     status: 'paid'
   },
   {

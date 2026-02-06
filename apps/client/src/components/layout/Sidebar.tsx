@@ -20,8 +20,8 @@ export function Sidebar() {
 
   return (
     <div className="hidden border-r bg-white md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
-      <div className="flex flex-col flex-grow pt-5 overflow-y-auto">
-        <div className="flex items-center flex-shrink-0 px-4 mb-8">
+      <div className="flex flex-col grow pt-5 overflow-y-auto">
+        <div className="flex items-center shrink-0 px-4 mb-8">
           <Building2 className="h-8 w-8 text-blue-600" />
           <span className="ml-2 text-xl font-bold text-gray-900">SyndicApp</span>
         </div>
@@ -41,7 +41,7 @@ export function Sidebar() {
               >
                 <item.icon
                   className={cn(
-                    "mr-3 h-5 w-5 flex-shrink-0",
+                    "mr-3 h-5 w-5 shrink-0",
                     isActive ? "text-blue-600" : "text-gray-400 group-hover:text-gray-500"
                   )}
                 />

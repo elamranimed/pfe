@@ -136,7 +136,7 @@ export function OfficeDialog({ open, onOpenChange, office, onSave }: OfficeDialo
                 <SelectValue placeholder="Statut" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="available">Vide/Disponible</SelectItem>
+                <SelectItem value="available">Disponible</SelectItem>
                 <SelectItem value="occupied">Occupé</SelectItem>
                 <SelectItem value="renovation">Aménagement</SelectItem>
               </SelectContent>
