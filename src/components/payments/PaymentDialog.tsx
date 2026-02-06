@@ -100,24 +100,7 @@ export function PaymentDialog({ open, onOpenChange, payment, tenants, onSave }: 
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="type">Type</Label>
-              <Select 
-                value={formData.type} 
-                onValueChange={(v: any) => setFormData({ ...formData, type: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="rent">Loyer</SelectItem>
-                  <SelectItem value="charges">Charges</SelectItem>
-                  <SelectItem value="penalty">Pénalité</SelectItem>
-                  <SelectItem value="deposit">Caution</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          {payment && (
             <div className="space-y-2">
               <Label htmlFor="status">Statut</Label>
               <Select 
@@ -133,17 +116,7 @@ export function PaymentDialog({ open, onOpenChange, payment, tenants, onSave }: 
                 </SelectContent>
               </Select>
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="reference">Référence</Label>
-            <Input 
-              id="reference" 
-              placeholder="ex: CHQ 123456"
-              value={formData.reference} 
-              onChange={e => setFormData({ ...formData, reference: e.target.value })} 
-              required 
-            />
-          </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="notes">Notes</Label>
             <Textarea 
