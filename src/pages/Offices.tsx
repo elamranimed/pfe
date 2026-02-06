@@ -127,7 +127,7 @@ export function Offices() {
                       variant={office.status === 'available' ? 'default' : office.status === 'occupied' ? 'secondary' : 'outline'}
                       className={
                         office.status === 'available' ? 'bg-green-600 hover:bg-green-700' :
-                        office.status === 'occupied' ? 'bg-blue-600 hover:bg-blue-700' :
+                        office.status === 'occupied' ? 'bg-blue-600 hover:bg-blue-700 text-white' :
                         'bg-yellow-500 hover:bg-yellow-600 text-white'
                       }
                     >
