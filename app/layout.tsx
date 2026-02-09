@@ -1,0 +1,25 @@
+import React from "react"
+import type { Metadata } from 'next'
+import { Geist, Geist_Mono } from 'next/font/google'
+
+import './globals.css'
+
+const _geist = Geist({ subsets: ['latin'] })
+const _geistMono = Geist_Mono({ subsets: ['latin'] })
+
+export const metadata: Metadata = {
+  title: 'Gestion Immobilière - Tableau de Bord',
+  description: 'Système de gestion immobilière pour bâtiments de bureaux',
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  return (
+    <html lang="fr" suppressHydrationWarning>
+      <body className="font-sans antialiased">{children}</body>
+    </html>
+  )
+}
