@@ -1,51 +1,65 @@
-// Office data type
-export interface Tenant {
+// Building Management System Types
+
+export type PaymentStatus = 'Payé' | 'Non payé' | 'En cours' | 'Partiel';
+export type ExpenseCategory = 'Concierge' | 'Électricité & Eau' | 'Ascenseur' | 'Fournitures & Ménage' | 'Autres';
+export type TransactionType = 'Cotisation' | 'Charge';
+
+export interface Bureau {
   id: string;
-  companyName: string;
-  contactName: string;
-  email: string;
-  phone: string;
-  contractStart: string;
-  contractEnd: string;
-  balance: number; // negative = owes money
+  number: number;
+  locataire: string;
 }
 
-export interface Office {
-  id: string;
-  number: string;
-  floor: number;
-  type: 'individual' | 'open-space' | 'meeting-room';
-  surface: number; // m²
-  monthlyRent: number; // MAD
-  charges: number; // MAD
-  status: 'available' | 'occupied' | 'maintenance';
-  createdAt: string;
-  updatedAt: string;
-  tenant?: Tenant;
-}
-
-// Payment data type
 export interface Payment {
-  id: string;
-  officeId: string;
-  officeNumber: string;
-  tenantName: string;
+  month: number; // 1-12
+  year: number;
   amount: number;
-  date: string;
-  type: 'rent' | 'charges' | 'penalty';
-  reference: string;
-  status: 'paid' | 'pending';
-  createdAt: string;
+  status: PaymentStatus;
+  paidDate?: string; // DD/MM/YYYY
+  amountPaid?: number; // For "Partiel"
+  notes?: string;
 }
 
-// Expense data type
-export interface Expense {
+export interface Cotisation {
+  bureauId: string;
+  bureauNumber: number;
+  locataire: string;
+  month: number;
+  year: number;
+  amountDue: number;
+  status: PaymentStatus;
+  paidDate?: string;
+  amountPaid?: number;
+  notes?: string;
+}
+
+export interface Charge {
   id: string;
-  date: string;
-  category: 'salary' | 'electricity' | 'water' | 'maintenance' | 'insurance';
+  date: string; // DD/MM/YYYY
+  category: ExpenseCategory;
   description: string;
+  fournisseur: string;
   amount: number;
-  supplier: string;
-  status: 'paid' | 'pending';
-  createdAt: string;
+  notes?: string;
+}
+
+export interface Transaction {
+  id: string;
+  date: string; // DD/MM/YYYY
+  type: TransactionType;
+  description: string;
+  debit: number;
+  credit: number;
+  balance: number;
+  bureauId?: string;
+  chargeId?: string;
+}
+
+export interface MonthlyBalance {
+  month: number;
+  year: number;
+  openingBalance: number;
+  credits: number;
+  debits: number;
+  closingBalance?: number;
 }

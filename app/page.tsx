@@ -1,7 +1,8 @@
-'use client';
+'use client'
 
-import { MainLayout } from '@/components/main-layout';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { StatsCard } from '@/components/stats-card'
+import { StatusBadge } from '@/components/status-badge'
 import {
   Table,
   TableBody,
@@ -9,238 +10,96 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Building, AlertCircle, LogOut } from 'lucide-react';
-import { mockOffices, mockPayments, mockExpenses } from '@/lib/mock-data';
-import { formatCurrency, formatDate } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
+} from '@/components/ui/table'
+import { formatCurrency, formatDate } from '@/lib/utils'
+import {
+  getTotalAnnualRevenue,
+  getTotalAnnualExpenses,
+  getActiveBureaus,
+  generateRecentTransactions,
+} from '@/lib/data'
+import { DollarSign, Zap, TrendingUp, Building2 } from 'lucide-react'
 
-export default function DashboardPage() {
-  const router = useRouter();
-
-  // Handle logout
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      router.push('/login');
-    } catch (error) {
-      console.error('Erreur de déconnexion:', error);
-    }
-  };
-
-  // Calculate statistics
-  const totalRevenue = mockPayments
-    .filter((p) => p.status === 'paid')
-    .reduce((sum, p) => sum + p.amount, 0);
-
-  const totalExpenses = mockExpenses
-    .filter((e) => e.status === 'paid')
-    .reduce((sum, e) => sum + e.amount, 0);
-
-  const occupiedOffices = mockOffices.filter(
-    (o) => o.status === 'occupied'
-  ).length;
-
-  const totalDebt = mockOffices
-    .filter((o) => o.tenant && o.tenant.balance < 0)
-    .reduce((sum, o) => sum + (o.tenant?.balance || 0), 0);
-
-  // Get recent payments (last 5)
-  const recentPayments = mockPayments.slice(-5).reverse();
-
-  // Get offices with unpaid debts
-  const officesWithDebt = mockOffices
-    .filter((o) => o.tenant && o.tenant.balance < 0)
-    .map((o, idx) => ({
-      officeNumber: o.number,
-      tenantName: o.tenant?.companyName || '',
-      amount: Math.abs(o.tenant?.balance || 0),
-      daysOverdue: (idx + 1) * 5 + 10,
-    }));
-
-  const getPaymentTypeBadge = (type: string) => {
-    const types: Record<string, { label: string; variant: any }> = {
-      contribution: { label: 'Cotisation', variant: 'default' },
-      charges: { label: 'Charges', variant: 'secondary' },
-      penalty: { label: 'Pénalité', variant: 'destructive' },
-    };
-    return types[type] || { label: type, variant: 'default' };
-  };
-
-  const getPaymentStatusBadge = (status: string) => {
-    if (status === 'paid') {
-      return <Badge className="bg-green-100 text-green-700">Payé</Badge>;
-    }
-    return <Badge className="bg-orange-100 text-orange-700">En Attente</Badge>;
-  };
+export default function HomePage() {
+  const totalRevenue = getTotalAnnualRevenue()
+  const totalExpenses = getTotalAnnualExpenses()
+  const activeBureaus = getActiveBureaus()
+  const recentTransactions = generateRecentTransactions().slice(0, 5)
+  const netResult = totalRevenue - totalExpenses
 
   return (
-    <MainLayout>
-      <div className="space-y-8">
-        {/* Header avec bouton de déconnexion */}
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-4xl font-bold text-slate-900 mb-2">
-              Tableau de Bord
-            </h1>
-            <p className="text-slate-600">
-              Aperçu de la gestion de votre bâtiment
-            </p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            Déconnexion
-          </button>
-        </div>
+    <div className="space-y-8 p-4 sm:p-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Accueil</h1>
+        <p className="text-muted-foreground mt-2">Aperçu financier 2025</p>
+      </div>
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-slate-600 text-sm font-medium mb-2">
-                  Revenus Totaux (Ce Mois)
-                </p>
-                <p className="text-3xl font-bold text-slate-900">
-                  {formatCurrency(totalRevenue)}
-                </p>
-              </div>
-              <div className="p-3 bg-green-100 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-          </Card>
+      {/* Statistics Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <StatsCard
+          title="Total Revenus 2025"
+          value={totalRevenue}
+          icon={<DollarSign className="h-4 w-4" />}
+        />
+        <StatsCard
+          title="Total Charges"
+          value={totalExpenses}
+          icon={<Zap className="h-4 w-4" />}
+        />
+        <StatsCard
+          title="Résultat Net"
+          value={netResult}
+          icon={<TrendingUp className="h-4 w-4" />}
+        />
+        <StatsCard
+          title="Bureaux Actifs"
+          value={activeBureaus}
+          isCurrency={false}
+          icon={<Building2 className="h-4 w-4" />}
+        />
+      </div>
 
-          <Card className="p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-slate-600 text-sm font-medium mb-2">
-                  Dépenses Totales (Ce Mois)
-                </p>
-                <p className="text-3xl font-bold text-slate-900">
-                  {formatCurrency(totalExpenses)}
-                </p>
-              </div>
-              <div className="p-3 bg-red-100 rounded-lg">
-                <TrendingDown className="w-6 h-6 text-red-600" />
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-slate-600 text-sm font-medium mb-2">
-                  Bureaux Occupés
-                </p>
-                <p className="text-3xl font-bold text-slate-900">
-                  {occupiedOffices}/{mockOffices.length}
-                </p>
-              </div>
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <Building className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-slate-600 text-sm font-medium mb-2">
-                  Dettes Impayées
-                </p>
-                <p className="text-3xl font-bold text-slate-900">
-                  {formatCurrency(Math.abs(totalDebt))}
-                </p>
-              </div>
-              <div className="p-3 bg-orange-100 rounded-lg">
-                <AlertCircle className="w-6 h-6 text-orange-600" />
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        {/* Recent Payments */}
-        <Card className="p-6">
-          <h2 className="text-xl font-bold text-slate-900 mb-4">
-            Paiements Récents
-          </h2>
+      {/* Recent Transactions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Dernières Transactions</CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="text-slate-700">Date</TableHead>
-                  <TableHead className="text-slate-700">Bureau N°</TableHead>
-                  <TableHead className="text-slate-700">Locataire</TableHead>
-                  <TableHead className="text-slate-700">Montant</TableHead>
-                  <TableHead className="text-slate-700">Type</TableHead>
-                  <TableHead className="text-slate-700">Statut</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead className="text-right">Débit</TableHead>
+                  <TableHead className="text-right">Crédit</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentPayments.map((payment) => {
-                  const typeBadge = getPaymentTypeBadge(payment.type);
-                  return (
-                    <TableRow key={payment.id}>
-                      <TableCell>{formatDate(payment.date)}</TableCell>
-                      <TableCell className="font-medium">
-                        {payment.officeNumber}
-                      </TableCell>
-                      <TableCell>{payment.tenantName}</TableCell>
-                      <TableCell className="font-semibold">
-                        {formatCurrency(payment.amount)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={typeBadge.variant as any}>
-                          {typeBadge.label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{getPaymentStatusBadge(payment.status)}</TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        </Card>
-
-        {/* Offices with Unpaid Debts */}
-        <Card className="p-6">
-          <h2 className="text-xl font-bold text-slate-900 mb-4">
-            Bureaux avec Dettes Impayées
-          </h2>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-slate-700">Bureau N°</TableHead>
-                  <TableHead className="text-slate-700">Locataire</TableHead>
-                  <TableHead className="text-slate-700">Montant Dû</TableHead>
-                  <TableHead className="text-slate-700">Jours de Retard</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {officesWithDebt.map((item, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell className="font-medium">
-                      {item.officeNumber}
+                {recentTransactions.map((transaction) => (
+                  <TableRow key={transaction.id}>
+                    <TableCell>{formatDate(transaction.date)}</TableCell>
+                    <TableCell>
+                      <StatusBadge status={transaction.type} />
                     </TableCell>
-                    <TableCell>{item.tenantName}</TableCell>
-                    <TableCell className="font-semibold text-red-600">
-                      {formatCurrency(item.amount)}
+                    <TableCell className="max-w-xs truncate">
+                      {transaction.description}
                     </TableCell>
-                    <TableCell>{item.daysOverdue}</TableCell>
+                    <TableCell className="text-right text-red-600">
+                      {transaction.debit > 0 ? formatCurrency(transaction.debit) : '-'}
+                    </TableCell>
+                    <TableCell className="text-right text-green-600">
+                      {transaction.credit > 0 ? formatCurrency(transaction.credit) : '-'}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </div>
-        </Card>
-      </div>
-    </MainLayout>
-  );
+        </CardContent>
+      </Card>
+    </div>
+  )
 }
