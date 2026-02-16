@@ -11,11 +11,24 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Building, AlertCircle } from 'lucide-react';
+import { TrendingUp, TrendingDown, Building, AlertCircle, LogOut } from 'lucide-react';
 import { mockOffices, mockPayments, mockExpenses } from '@/lib/mock-data';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
+  const router = useRouter();
+
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/login');
+    } catch (error) {
+      console.error('Erreur de déconnexion:', error);
+    }
+  };
+
   // Calculate statistics
   const totalRevenue = mockPayments
     .filter((p) => p.status === 'paid')
@@ -65,13 +78,23 @@ export default function DashboardPage() {
   return (
     <MainLayout>
       <div className="space-y-8">
-        <div>
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">
-            Tableau de Bord
-          </h1>
-          <p className="text-slate-600">
-            Aperçu de la gestion immobilière de votre bâtiment
-          </p>
+        {/* Header avec bouton de déconnexion */}
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-bold text-slate-900 mb-2">
+              Tableau de Bord
+            </h1>
+            <p className="text-slate-600">
+              Aperçu de la gestion de votre bâtiment
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            Déconnexion
+          </button>
         </div>
 
         {/* Statistics Cards */}

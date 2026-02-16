@@ -8,8 +8,8 @@ const _geist = Geist({ subsets: ['latin'] })
 const _geistMono = Geist_Mono({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Gestion Immobilière - Tableau de Bord',
-  description: 'Système de gestion immobilière pour bâtiments de bureaux',
+  title: 'Gestion Syndic - Tableau de Bord',
+  description: 'Système de gestion pour bâtiments de bureaux',
 }
 
 export default function RootLayout({

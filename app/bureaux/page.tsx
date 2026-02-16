@@ -37,6 +37,10 @@ export default function BureauxPage() {
     );
   };
 
+  const handleDeleteOffice = (officeId: string) => {
+    setOffices(offices.filter((o) => o.id !== officeId));
+  };
+
   return (
     <MainLayout>
       <div className="space-y-8">
@@ -71,6 +75,7 @@ export default function BureauxPage() {
             offices={filteredOffices}
             onAddOffice={handleAddOffice}
             onUpdateOffice={handleUpdateOffice}
+            onDeleteOffice={handleDeleteOffice}
           />
         </Card>
       </div>

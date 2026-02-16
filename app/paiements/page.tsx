@@ -61,7 +61,7 @@ export default function PaiementsPage() {
             Paiements
           </h1>
           <p className="text-slate-600">
-            Gestion des paiements des loyers et charges
+            Gestion des paiements de cotisations et charges
           </p>
         </div>
 

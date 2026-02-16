@@ -11,26 +11,39 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, Edit2, Eye } from 'lucide-react';
+import { Plus, Edit2, Eye, Trash2 } from 'lucide-react';
 import { Office } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import { OfficeModal } from './office-modal';
 import { OfficeDetailsModal } from './office-details-modal';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface OfficesTableProps {
   offices: Office[];
   onAddOffice: (office: Office) => void;
   onUpdateOffice: (office: Office) => void;
+  onDeleteOffice?: (officeId: string) => void;
 }
 
 export function OfficesTable({
   offices,
   onAddOffice,
   onUpdateOffice,
+  onDeleteOffice,
 }: OfficesTableProps) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingOffice, setEditingOffice] = useState<Office | null>(null);
   const [selectedOffice, setSelectedOffice] = useState<Office | null>(null);
+  const [deletingOffice, setDeletingOffice] = useState<Office | null>(null);
 
   const getStatusBadge = (status: string) => {
     const statuses: Record<string, { label: string; className: string }> = {
@@ -52,6 +65,13 @@ export function OfficesTable({
       'meeting-room': 'Salle de Réunion',
     };
     return types[type] || type;
+  };
+
+  const handleDelete = () => {
+    if (deletingOffice && onDeleteOffice) {
+      onDeleteOffice(deletingOffice.id);
+      setDeletingOffice(null);
+    }
   };
 
   return (
@@ -125,6 +145,16 @@ export function OfficesTable({
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
+                    {office.tenant && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedOffice(office)}
+                        title="Voir Détails"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -136,16 +166,15 @@ export function OfficesTable({
                     >
                       <Edit2 className="w-4 h-4" />
                     </Button>
-                    {office.tenant && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedOffice(office)}
-                        title="Voir Détails"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setDeletingOffice(office)}
+                      title="Supprimer"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 </TableCell>
               </TableRow>
@@ -175,6 +204,35 @@ export function OfficesTable({
           if (!open) setSelectedOffice(null);
         }}
       />
+
+      {/* Dialogue de confirmation de suppression */}
+      <AlertDialog open={!!deletingOffice} onOpenChange={(open) => !open && setDeletingOffice(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer le bureau <strong>{deletingOffice?.number}</strong> ?
+              {deletingOffice?.tenant && (
+                <span className="block mt-2 text-orange-600">
+                  ⚠️ Ce bureau est actuellement occupé par {deletingOffice.tenant.companyName}.
+                </span>
+              )}
+              <span className="block mt-2">
+                Cette action est irréversible.
+              </span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

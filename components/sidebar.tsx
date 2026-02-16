@@ -16,7 +16,7 @@ export function Sidebar() {
     },
     {
       href: '/bureaux',
-      label: 'Bureaux & Locataires',
+      label: 'Bureaux',
       icon: Building,
     },
     {
@@ -34,8 +34,8 @@ export function Sidebar() {
   return (
     <div className="w-64 min-h-screen bg-black text-white flex flex-col">
       <div className="p-6 border-b border-slate-700">
-        <h1 className="text-2xl font-bold">CAD Immobilier</h1>
-        <p className="text-sm text-slate-400 mt-1">Gestion Bureaux</p>
+        <h1 className="text-2xl font-bold">CAD Syndic</h1>
+        <p className="text-sm text-slate-400 mt-1">Gestion de Bureaux</p>
       </div>
 
       <nav className="flex-1 p-4 space-y-2">
@@ -61,7 +61,7 @@ export function Sidebar() {
       </nav>
 
       <div className="p-4 border-t border-slate-700 text-xs text-slate-400">
-        <p>© 2026 Gestion Immobilière</p>
+        <p>© 2026 Gestion Syndic</p>
       </div>
     </div>
   );

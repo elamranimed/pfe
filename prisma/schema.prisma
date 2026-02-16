@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+// ==================== ENUMS ====================
+
+enum Role {
+  admin
+  responsable
+}
+
+enum Objet {
+  creation
+  reclamation
+}
+
+enum Type {
+  individuel
+  centre
+}
+
+enum Statut {
+  actif
+  inactif
+}
+
+// ==================== MODELS ====================
+
+model User {
+  id_user   Int      @id @default(autoincrement())
+  nom       String
+  prenom    String
+  role      Role
+  email     String   @unique
+  login     String   @unique
+  password  String
+
+  // Relations
+  demandes  Demande[]   @relation("UserDemande")
+  bureaux   Bureau[]    @relation("UserBureau")
+  paiements Paiement[]  @relation("UserPaiement")
+}
+
+model Bureau {
+  id_bureau   Int      @id @default(autoincrement())
+  nom         String
+  etage       Int
+  telephone   String?
+  email       String?
+  type        Type
+  statut      Statut
+  cotisation  Int
+
+  // Relations
+  demandes    Demande[]
+  paiements   Paiement[]
+  users       User[]    @relation("UserBureau")
+}
+
+model Demande {
+  id_demande  Int      @id @default(autoincrement())
+  objet       Objet
+  created_at  DateTime @default(now())
+  created_by  String
+
+  // Relations
+  bureauId    Int?
+  bureau      Bureau?  @relation(fields: [bureauId], references: [id_bureau])
+
+  userId      Int?
+  user        User?    @relation("UserDemande", fields: [userId], references: [id_user])
+}
+
+model Paiement {
+  id_paiement Int      @id @default(autoincrement())
+  montant     Int
+  date        DateTime @default(now())
+  note        String?
+
+  // Relations
+  bureauId    Int?
+  bureau      Bureau?  @relation(fields: [bureauId], references: [id_bureau])
+
+  userId      Int?
+  user        User?    @relation("UserPaiement", fields: [userId], references: [id_user])
+}
