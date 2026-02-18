@@ -1,5 +1,5 @@
 import prisma from './prisma'
-import type { Prisma } from '../lib/generated/prisma/client'
+import type { Prisma } from '../app/lib/generated/prisma/client'
 
 export const BureauService = {
 	create: async (data: Prisma.BureauCreateInput) => prisma.bureau.create({ data }),

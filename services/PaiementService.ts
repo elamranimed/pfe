@@ -1,5 +1,5 @@
 import prisma from './prisma'
-import type { Prisma } from '../lib/generated/prisma/client'
+import type { Prisma } from '../app/lib/generated/prisma/client'
 
 export const PaiementService = {
 	create: async (data: Prisma.PaiementCreateInput) => prisma.paiement.create({ data }),
