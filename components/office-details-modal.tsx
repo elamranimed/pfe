@@ -28,84 +28,82 @@ export function OfficeDetailsModal({
   office,
   onOpenChange,
 }: OfficeDetailsModalProps) {
-  if (!office || !office.tenant) return null;
+  if (!office) return null;
 
-  const officePayments = mockPayments.filter(
-    (p) => p.officeId === office.id
-  );
+  const tenant = office.tenant;
+  const hasTenant = !!tenant;
+  const officePayments = mockPayments.filter((p) => p.officeId === office.id);
 
   return (
     <Dialog open={!!office} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            Détails Bureau {office.number} - {office.tenant.companyName}
+            Détails Bureau {office.number}
+            {tenant ? ` - ${tenant.companyName}` : ''}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Tenant Info */}
-          <Card className="p-4">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">
-              Informations Locataire
-            </h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-slate-600 mb-1">Entreprise</p>
-                <p className="font-semibold text-slate-900">
-                  {office.tenant.companyName}
-                </p>
+          {hasTenant ? (
+            <Card className="p-4">
+              <h3 className="text-lg font-semibold text-slate-900 mb-4">
+                Informations Locataire
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-slate-600 mb-1">Entreprise</p>
+                  <p className="font-semibold text-slate-900">{tenant?.companyName}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-600 mb-1">Contact</p>
+                  <p className="font-semibold text-slate-900">{tenant?.contactName}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-600 mb-1">Email</p>
+                  <p className="font-semibold text-slate-900">{tenant?.email}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-600 mb-1">Téléphone</p>
+                  <p className="font-semibold text-slate-900">{tenant?.phone}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-600 mb-1">Début Contrat</p>
+                  <p className="font-semibold text-slate-900">
+                    {tenant?.contractStart ? formatDate(tenant.contractStart) : '—'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-600 mb-1">Fin Contrat</p>
+                  <p className="font-semibold text-slate-900">
+                    {tenant?.contractEnd ? formatDate(tenant.contractEnd) : '—'}
+                  </p>
+                </div>
+                <div className="col-span-2">
+                  <p className="text-sm text-slate-600 mb-1">Solde Compte</p>
+                  <p
+                    className={
+                      (tenant?.balance ?? 0) < 0
+                        ? 'text-xl font-bold text-red-600'
+                        : 'text-xl font-bold text-green-600'
+                    }
+                  >
+                    {formatCurrency(tenant?.balance ?? 0)}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-slate-600 mb-1">Contact</p>
-                <p className="font-semibold text-slate-900">
-                  {office.tenant.contactName}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-600 mb-1">Email</p>
-                <p className="font-semibold text-slate-900">
-                  {office.tenant.email}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-600 mb-1">Téléphone</p>
-                <p className="font-semibold text-slate-900">
-                  {office.tenant.phone}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-600 mb-1">Début Contrat</p>
-                <p className="font-semibold text-slate-900">
-                  {formatDate(office.tenant.contractStart)}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-600 mb-1">Fin Contrat</p>
-                <p className="font-semibold text-slate-900">
-                  {formatDate(office.tenant.contractEnd)}
-                </p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-sm text-slate-600 mb-1">Solde Compte</p>
-                <p
-                  className={
-                    office.tenant.balance < 0
-                      ? 'text-xl font-bold text-red-600'
-                      : 'text-xl font-bold text-green-600'
-                  }
-                >
-                  {formatCurrency(office.tenant.balance)}
-                </p>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          ) : (
+            <Card className="p-4">
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">Informations Locataire</h3>
+              <p className="text-slate-700">Aucun locataire associé à ce bureau.</p>
+            </Card>
+          )}
 
           {/* Office Info */}
           <Card className="p-4">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">
-              Informations Bureau
-            </h3>
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">Informations Bureau</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-slate-600 mb-1">Type</p>
@@ -138,9 +136,7 @@ export function OfficeDetailsModal({
 
           {/* Payment History */}
           <Card className="p-4">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">
-              Historique Paiements
-            </h3>
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">Historique Paiements</h3>
             {officePayments.length > 0 ? (
               <div className="overflow-x-auto">
                 <Table>
@@ -170,9 +166,7 @@ export function OfficeDetailsModal({
                           {payment.status === 'paid' ? (
                             <span className="text-green-600 font-semibold">Payé</span>
                           ) : (
-                            <span className="text-orange-600 font-semibold">
-                              En Attente
-                            </span>
+                            <span className="text-orange-600 font-semibold">En Attente</span>
                           )}
                         </TableCell>
                       </TableRow>

@@ -7,7 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-
 // ==================== ENUMS ====================
 
 enum Role {

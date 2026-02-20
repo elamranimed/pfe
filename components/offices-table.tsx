@@ -49,10 +49,7 @@ export function OfficesTable({
     const statuses: Record<string, { label: string; className: string }> = {
       available: { label: 'Disponible', className: 'bg-green-100 text-green-700' },
       occupied: { label: 'Occupé', className: 'bg-blue-100 text-blue-700' },
-      maintenance: {
-        label: 'Maintenance',
-        className: 'bg-yellow-100 text-yellow-700',
-      },
+      maintenance: { label: 'Maintenance', className: 'bg-yellow-100 text-yellow-700' },
     };
     const s = statuses[status];
     return <Badge className={s.className}>{s.label}</Badge>;
@@ -96,65 +93,33 @@ export function OfficesTable({
               <TableHead className="text-slate-700">N° Bureau</TableHead>
               <TableHead className="text-slate-700">Étage</TableHead>
               <TableHead className="text-slate-700">Type</TableHead>
-              <TableHead className="text-slate-700">Surface (m²)</TableHead>
-              <TableHead className="text-slate-700">Loyer</TableHead>
+              <TableHead className="text-slate-700">Cotisation</TableHead>
               <TableHead className="text-slate-700">Statut</TableHead>
               <TableHead className="text-slate-700">Locataire</TableHead>
               <TableHead className="text-slate-700">Contact</TableHead>
-              <TableHead className="text-slate-700">Fin Contrat</TableHead>
-              <TableHead className="text-slate-700">Solde</TableHead>
               <TableHead className="text-slate-700">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {offices.map((office) => (
               <TableRow key={office.id}>
-                <TableCell className="font-bold text-slate-900">
-                  {office.number}
-                </TableCell>
+                <TableCell className="font-bold text-slate-900">{office.number}</TableCell>
                 <TableCell>{office.floor}</TableCell>
                 <TableCell>{getTypeBadge(office.type)}</TableCell>
-                <TableCell>{office.surface}</TableCell>
-                <TableCell className="font-medium">
-                  {formatCurrency(office.monthlyRent)}
-                </TableCell>
+                <TableCell className="font-medium">{formatCurrency(office.monthlyRent)}</TableCell>
                 <TableCell>{getStatusBadge(office.status)}</TableCell>
-                <TableCell className="text-slate-700">
-                  {office.tenant?.companyName || '—'}
-                </TableCell>
-                <TableCell className="text-slate-700">
-                  {office.tenant?.contactName || '—'}
-                </TableCell>
-                <TableCell className="text-slate-700">
-                  {office.tenant?.contractEnd || '—'}
-                </TableCell>
-                <TableCell>
-                  {office.tenant?.balance ? (
-                    <span
-                      className={
-                        office.tenant.balance < 0
-                          ? 'font-semibold text-red-600'
-                          : 'font-semibold text-green-600'
-                      }
-                    >
-                      {formatCurrency(office.tenant.balance)}
-                    </span>
-                  ) : (
-                    '—'
-                  )}
-                </TableCell>
+                <TableCell className="text-slate-700">{office.tenant?.companyName || '—'}</TableCell>
+                <TableCell className="text-slate-700">{office.tenant?.contactName || '—'}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    {office.tenant && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedOffice(office)}
-                        title="Voir Détails"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedOffice(office)}
+                      title="Afficher"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -205,7 +170,6 @@ export function OfficesTable({
         }}
       />
 
-      {/* Dialogue de confirmation de suppression */}
       <AlertDialog open={!!deletingOffice} onOpenChange={(open) => !open && setDeletingOffice(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -217,17 +181,12 @@ export function OfficesTable({
                   ⚠️ Ce bureau est actuellement occupé par {deletingOffice.tenant.companyName}.
                 </span>
               )}
-              <span className="block mt-2">
-                Cette action est irréversible.
-              </span>
+              <span className="block mt-2">Cette action est irréversible.</span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700"
-            >
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
               Supprimer
             </AlertDialogAction>
           </AlertDialogFooter>
