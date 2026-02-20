@@ -34,6 +34,14 @@ interface OfficesTableProps {
   onDeleteOffice?: (officeId: string) => void;
 }
 
+
+function cleanString(value?: string | null): string | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (!trimmed || /^[-\s]+$/.test(trimmed)) return null;
+  return trimmed;
+}
+
 export function OfficesTable({
   offices,
   onAddOffice,
@@ -51,7 +59,7 @@ export function OfficesTable({
       occupied: { label: 'Occupé', className: 'bg-blue-100 text-blue-700' },
       maintenance: { label: 'Maintenance', className: 'bg-yellow-100 text-yellow-700' },
     };
-    const s = statuses[status];
+    const s = statuses[status] || { label: status, className: 'bg-slate-100 text-slate-700' };
     return <Badge className={s.className}>{s.label}</Badge>;
   };
 
@@ -60,6 +68,7 @@ export function OfficesTable({
       individual: 'Bureau Individuel',
       'open-space': 'Open-Space',
       'meeting-room': 'Salle de Réunion',
+      centre: 'Centre',
     };
     return types[type] || type;
   };
@@ -69,6 +78,28 @@ export function OfficesTable({
       onDeleteOffice(deletingOffice.id);
       setDeletingOffice(null);
     }
+  };
+
+  const resolvePhone = (office: Office) => {
+    const rootPhone = (office as any).telephone ?? '';
+    if (rootPhone && String(rootPhone).trim() !== '') return String(rootPhone).trim();
+
+    const tenantPhone = office.tenant?.phone ?? '';
+    if (tenantPhone && String(tenantPhone).trim() !== '') return String(tenantPhone).trim();
+
+    const tenantTelephone = (office.tenant as any)?.telephone ?? '';
+    return tenantTelephone && String(tenantTelephone).trim() !== '' ? String(tenantTelephone).trim() : '';
+  };
+
+  const resolveEmail = (office: Office) => {
+    const rootEmail = (office as any).email ?? '';
+    if (rootEmail && String(rootEmail).trim() !== '') return String(rootEmail).trim();
+
+    const tenantEmail = office.tenant?.email ?? '';
+    if (tenantEmail && String(tenantEmail).trim() !== '') return String(tenantEmail).trim();
+
+    const tenantMail = (office.tenant as any)?.mail ?? '';
+    return tenantMail && String(tenantMail).trim() !== '' ? String(tenantMail).trim() : '';
   };
 
   return (
@@ -91,59 +122,87 @@ export function OfficesTable({
           <TableHeader>
             <TableRow>
               <TableHead className="text-slate-700">N° Bureau</TableHead>
+              <TableHead className="text-slate-700">Locataire (Nom du Bureau)</TableHead>
               <TableHead className="text-slate-700">Étage</TableHead>
               <TableHead className="text-slate-700">Type</TableHead>
+              <TableHead className="text-slate-700">Téléphone</TableHead>
+              <TableHead className="text-slate-700">Email</TableHead>
               <TableHead className="text-slate-700">Cotisation</TableHead>
               <TableHead className="text-slate-700">Statut</TableHead>
-              <TableHead className="text-slate-700">Locataire</TableHead>
-              <TableHead className="text-slate-700">Contact</TableHead>
               <TableHead className="text-slate-700">Actions</TableHead>
             </TableRow>
           </TableHeader>
+
           <TableBody>
-            {offices.map((office) => (
-              <TableRow key={office.id}>
-                <TableCell className="font-bold text-slate-900">{office.number}</TableCell>
-                <TableCell>{office.floor}</TableCell>
-                <TableCell>{getTypeBadge(office.type)}</TableCell>
-                <TableCell className="font-medium">{formatCurrency(office.monthlyRent)}</TableCell>
-                <TableCell>{getStatusBadge(office.status)}</TableCell>
-                <TableCell className="text-slate-700">{office.tenant?.companyName || '—'}</TableCell>
-                <TableCell className="text-slate-700">{office.tenant?.contactName || '—'}</TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedOffice(office)}
-                      title="Afficher"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setEditingOffice(office);
-                        setShowAddModal(true);
-                      }}
-                      title="Modifier"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setDeletingOffice(office)}
-                      title="Supprimer"
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+            {offices.map((office) => {
+              const phone = resolvePhone(office);
+              const email = resolveEmail(office);
+
+              
+              const displayName =
+                cleanString(office.tenant?.companyName) ||
+                cleanString(office.name) ||
+                null;
+
+              return (
+                <TableRow key={office.id}>
+                  <TableCell className="font-bold text-slate-900">{office.number}</TableCell>
+
+                  <TableCell className="text-slate-700">
+                    {displayName ?? <span className="text-slate-400 italic">—</span>}
+                  </TableCell>
+
+                  <TableCell>{office.floor}</TableCell>
+                  <TableCell>{getTypeBadge(office.type)}</TableCell>
+
+                  <TableCell className="text-slate-700">
+                    {phone ? <a href={`tel:${phone}`} className="underline">{phone}</a> : '—'}
+                  </TableCell>
+
+                  <TableCell className="text-slate-700">
+                    {email ? <a href={`mailto:${email}`} className="underline">{email}</a> : '—'}
+                  </TableCell>
+
+                  <TableCell className="font-medium">{formatCurrency(office.cotisation)}</TableCell>
+                  <TableCell>{getStatusBadge(office.status)}</TableCell>
+
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedOffice(office)}
+                        title="Afficher"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setEditingOffice(office);
+                          setShowAddModal(true);
+                        }}
+                        title="Modifier"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setDeletingOffice(office)}
+                        title="Supprimer"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>

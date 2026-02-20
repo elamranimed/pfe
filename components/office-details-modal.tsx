@@ -1,181 +1,96 @@
 'use client';
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import { Office } from '@/lib/types';
-import { formatCurrency, formatDate } from '@/lib/utils';
-import { mockPayments } from '@/lib/mock-data';
+import { formatCurrency } from '@/lib/utils';
 
 interface OfficeDetailsModalProps {
   office: Office | null;
   onOpenChange: (open: boolean) => void;
 }
 
-export function OfficeDetailsModal({
-  office,
-  onOpenChange,
-}: OfficeDetailsModalProps) {
+const clean = (v?: string | null) => {
+  const t = v?.trim();
+  return t && t.length > 0 ? t : null;
+};
+
+const STATUS: Record<string, { label: string; className: string }> = {
+  available:   { label: 'Disponible',  className: 'bg-green-100 text-green-700' },
+  occupied:    { label: 'Occupé',      className: 'bg-blue-100 text-blue-700' },
+  maintenance: { label: 'Maintenance', className: 'bg-yellow-100 text-yellow-700' },
+};
+
+const TYPES: Record<string, string> = {
+  individual:     'Bureau Individuel',
+  'open-space':   'Open-Space',
+  'meeting-room': 'Salle de Réunion',
+};
+
+function row(label: string, value: React.ReactNode, alwaysShow = false) {
+  if (!alwaysShow && !value) return null;
+  return (
+    <div>
+      <p className="text-sm text-slate-600 mb-1">{label}</p>
+      <div className="font-semibold text-slate-900">{value}</div>
+    </div>
+  );
+}
+
+function rowFull(label: string, value: React.ReactNode) {
+  if (!value) return null;
+  return (
+    <div className="col-span-2">
+      <p className="text-sm text-slate-600 mb-1">{label}</p>
+      <div className="font-semibold text-slate-900">{value}</div>
+    </div>
+  );
+}
+
+export function OfficeDetailsModal({ office, onOpenChange }: OfficeDetailsModalProps) {
   if (!office) return null;
 
-  const tenant = office.tenant;
-  const hasTenant = !!tenant;
-  const officePayments = mockPayments.filter((p) => p.officeId === office.id);
+  const { tenant } = office;
+  const name  = clean(office.name);
+  const phone = clean(tenant?.phone) || clean((office as any).telephone);
+  const email = clean(tenant?.email) || clean((office as any).email);
+  const status = STATUS[office.status] ?? { label: office.status, className: 'bg-slate-100 text-slate-700' };
 
   return (
-    <Dialog open={!!office} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+    <Dialog open onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            Détails Bureau {office.number}
-            {tenant ? ` - ${tenant.companyName}` : ''}
-          </DialogTitle>
+          <DialogTitle>Détails {name || `Bureau ${office.number}`}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Tenant Info */}
-          {hasTenant ? (
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">
-                Informations Locataire
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-slate-600 mb-1">Entreprise</p>
-                  <p className="font-semibold text-slate-900">{tenant?.companyName}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-600 mb-1">Contact</p>
-                  <p className="font-semibold text-slate-900">{tenant?.contactName}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-600 mb-1">Email</p>
-                  <p className="font-semibold text-slate-900">{tenant?.email}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-600 mb-1">Téléphone</p>
-                  <p className="font-semibold text-slate-900">{tenant?.phone}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-600 mb-1">Début Contrat</p>
-                  <p className="font-semibold text-slate-900">
-                    {tenant?.contractStart ? formatDate(tenant.contractStart) : '—'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-slate-600 mb-1">Fin Contrat</p>
-                  <p className="font-semibold text-slate-900">
-                    {tenant?.contractEnd ? formatDate(tenant.contractEnd) : '—'}
-                  </p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-sm text-slate-600 mb-1">Solde Compte</p>
-                  <p
-                    className={
-                      (tenant?.balance ?? 0) < 0
-                        ? 'text-xl font-bold text-red-600'
-                        : 'text-xl font-bold text-green-600'
-                    }
-                  >
-                    {formatCurrency(tenant?.balance ?? 0)}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          ) : (
-            <Card className="p-4">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">Informations Locataire</h3>
-              <p className="text-slate-700">Aucun locataire associé à ce bureau.</p>
-            </Card>
-          )}
-
-          {/* Office Info */}
           <Card className="p-4">
             <h3 className="text-lg font-semibold text-slate-900 mb-4">Informations Bureau</h3>
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-slate-600 mb-1">Type</p>
-                <p className="font-semibold text-slate-900">
-                  {office.type === 'individual'
-                    ? 'Bureau Individuel'
-                    : office.type === 'open-space'
-                      ? 'Open-Space'
-                      : 'Salle de Réunion'}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-600 mb-1">Surface</p>
-                <p className="font-semibold text-slate-900">{office.surface} m²</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-600 mb-1">Loyer Mensuel</p>
-                <p className="font-semibold text-slate-900">
-                  {formatCurrency(office.monthlyRent)}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-600 mb-1">Charges</p>
-                <p className="font-semibold text-slate-900">
-                  {formatCurrency(office.charges)}
-                </p>
-              </div>
+              {row('Numéro', office.number)}
+              {row('Nom du Bureau', name, true)}
+              {row('Étage', office.floor)}
+              {row('Type', TYPES[office.type] ?? office.type)}
+              {row('Téléphone', phone && <a href={`tel:${phone}`} className="underline">{phone}</a>)}
+              {row('Email', email && <a href={`mailto:${email}`} className="underline">{email}</a>)}
+              {row('Cotisation Mensuelle', formatCurrency(office.cotisation))}
+              {row('Statut', <Badge className={status.className}>{status.label}</Badge>)}
+              {rowFull('Notes', office.notes && <span className="whitespace-pre-wrap">{office.notes}</span>)}
             </div>
           </Card>
 
-          {/* Payment History */}
           <Card className="p-4">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">Historique Paiements</h3>
-            {officePayments.length > 0 ? (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-slate-700">Date</TableHead>
-                      <TableHead className="text-slate-700">Type</TableHead>
-                      <TableHead className="text-slate-700">Montant</TableHead>
-                      <TableHead className="text-slate-700">Statut</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {officePayments.map((payment) => (
-                      <TableRow key={payment.id}>
-                        <TableCell>{formatDate(payment.date)}</TableCell>
-                        <TableCell>
-                          {payment.type === 'rent'
-                            ? 'Loyer'
-                            : payment.type === 'charges'
-                              ? 'Charges'
-                              : 'Pénalité'}
-                        </TableCell>
-                        <TableCell className="font-semibold">
-                          {formatCurrency(payment.amount)}
-                        </TableCell>
-                        <TableCell>
-                          {payment.status === 'paid' ? (
-                            <span className="text-green-600 font-semibold">Payé</span>
-                          ) : (
-                            <span className="text-orange-600 font-semibold">En Attente</span>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">Informations Locataire</h3>
+            {tenant ? (
+              <div className="grid grid-cols-2 gap-4">
+                {row('Entreprise',    clean(tenant.companyName))}
+                {row('Contact',       clean(tenant.contactName))}
+                {row('Début Contrat', clean(tenant.contractStart))}
+                {row('Fin Contrat',   clean(tenant.contractEnd))}
               </div>
             ) : (
-              <p className="text-slate-600">Aucun paiement enregistré</p>
+              <p className="text-slate-500 italic">Aucun locataire associé à ce bureau.</p>
             )}
           </Card>
         </div>
@@ -183,3 +98,5 @@ export function OfficeDetailsModal({
     </Dialog>
   );
 }
+
+export default OfficeDetailsModal;

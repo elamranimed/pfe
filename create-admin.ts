@@ -4,7 +4,7 @@ import { AuthService } from './services/AuthService'
 
 async function createAdminUser() {
   try {
-    // Vérifier si un admin existe déjà
+    
     const existingAdmin = await prisma.user.findFirst({
       where: { role: 'admin' },
     })
@@ -14,7 +14,7 @@ async function createAdminUser() {
       return
     }
 
-    // Créer un nouvel admin
+    
     const hashedPassword = await AuthService.hashPassword('admin123')
     
     const admin = await prisma.user.create({

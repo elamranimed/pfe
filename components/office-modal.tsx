@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -34,12 +35,14 @@ export function OfficeModal({
   const [formData, setFormData] = useState<Office>({
     id: '',
     number: '',
+    name: '',
     floor: 1,
+    telephone: '',
+    email: '',
     type: 'individual',
-    surface: 0,
-    monthlyRent: 0,
-    charges: 0,
+    cotisation: 0,
     status: 'available',
+    notes: '',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
@@ -51,12 +54,14 @@ export function OfficeModal({
       setFormData({
         id: Math.random().toString(36).substring(2, 15),
         number: '',
+        name: '',
         floor: 1,
+        telephone: '',
+        email: '',
         type: 'individual',
-        surface: 0,
-        monthlyRent: 0,
-        charges: 0,
+        cotisation: 0,
         status: 'available',
+        notes: '',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
@@ -81,7 +86,6 @@ export function OfficeModal({
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Bureau Section */}
           <div>
             <h3 className="text-lg font-semibold text-slate-900 mb-4">
               Informations Bureau
@@ -102,15 +106,55 @@ export function OfficeModal({
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Nom du Bureau
+                </label>
+                <Input
+                  value={formData.name || ''}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
+                  placeholder="Bureau Directeur"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Étage
                 </label>
                 <Input
                   type="number"
-                  value={formData.floor}
+                  value={formData.floor ?? 1}
                   onChange={(e) =>
-                    setFormData({ ...formData, floor: parseInt(e.target.value) })
+                    setFormData({ ...formData, floor: parseInt(e.target.value) || 1 })
                   }
                   min="1"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Téléphone
+                </label>
+                <Input
+                  value={formData.telephone || ''}
+                  onChange={(e) =>
+                    setFormData({ ...formData, telephone: e.target.value })
+                  }
+                  placeholder="06 XX XX XX XX"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Email
+                </label>
+                <Input
+                  type="email"
+                  value={formData.email || ''}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  placeholder="bureau@example.com"
                 />
               </div>
 
@@ -140,41 +184,13 @@ export function OfficeModal({
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Surface (m²)
+                  Cotisation Mensuelle (MAD)
                 </label>
                 <Input
                   type="number"
-                  value={formData.surface}
+                  value={formData.cotisation ?? 0}
                   onChange={(e) =>
-                    setFormData({ ...formData, surface: parseFloat(e.target.value) })
-                  }
-                  min="0"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Loyer Mensuel (MAD)
-                </label>
-                <Input
-                  type="number"
-                  value={formData.monthlyRent}
-                  onChange={(e) =>
-                    setFormData({ ...formData, monthlyRent: parseFloat(e.target.value) })
-                  }
-                  min="0"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Charges (MAD)
-                </label>
-                <Input
-                  type="number"
-                  value={formData.charges}
-                  onChange={(e) =>
-                    setFormData({ ...formData, charges: parseFloat(e.target.value) })
+                    setFormData({ ...formData, cotisation: parseFloat(e.target.value) || 0 })
                   }
                   min="0"
                 />
@@ -206,7 +222,6 @@ export function OfficeModal({
             </div>
           </div>
 
-          {/* Tenant Section - Only show if occupied */}
           {formData.status === 'occupied' && (
             <div>
               <h3 className="text-lg font-semibold text-slate-900 mb-4">
@@ -371,12 +386,23 @@ export function OfficeModal({
             </div>
           )}
 
-          {/* Buttons */}
+          {/* Notes Section */}
+          <div>
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">
+              Notes
+            </h3>
+            <Textarea
+              value={formData.notes || ''}
+              onChange={(e) =>
+                setFormData({ ...formData, notes: e.target.value })
+              }
+              placeholder="Ajouter des remarques ou informations supplémentaires..."
+              className="min-h-[100px] resize-y"
+            />
+          </div>
+
           <div className="flex gap-3 justify-end">
-            <Button
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
               Annuler
             </Button>
             <Button onClick={handleSave}>Enregistrer</Button>

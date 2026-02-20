@@ -19,7 +19,7 @@ import { useRouter } from 'next/navigation';
 export default function DashboardPage() {
   const router = useRouter();
 
-  // Handle logout
+  
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
@@ -29,7 +29,7 @@ export default function DashboardPage() {
     }
   };
 
-  // Calculate statistics
+  
   const totalRevenue = mockPayments
     .filter((p) => p.status === 'paid')
     .reduce((sum, p) => sum + p.amount, 0);
@@ -46,10 +46,10 @@ export default function DashboardPage() {
     .filter((o) => o.tenant && o.tenant.balance < 0)
     .reduce((sum, o) => sum + (o.tenant?.balance || 0), 0);
 
-  // Get recent payments (last 5)
+  
   const recentPayments = mockPayments.slice(-5).reverse();
 
-  // Get offices with unpaid debts
+ 
   const officesWithDebt = mockOffices
     .filter((o) => o.tenant && o.tenant.balance < 0)
     .map((o, idx) => ({

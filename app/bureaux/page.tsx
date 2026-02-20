@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/main-layout';
 import { OfficesTable } from '@/components/offices-table';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -12,33 +11,115 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus } from 'lucide-react';
-import { mockOffices } from '@/lib/mock-data';
 import { Office } from '@/lib/types';
 
 type FilterStatus = 'all' | 'available' | 'occupied' | 'maintenance';
 
+const bureauxApi = {
+  getAll: async () => {
+    const res = await fetch('/api/bureaux', { credentials: 'include' });
+    if (!res.ok) throw new Error('Erreur chargement bureaux');
+    return res.json();
+  },
+  create: async (data: any) => {
+    const res = await fetch('/api/bureaux', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Erreur création bureau');
+    return res.json();
+  },
+  update: async (id: string, data: any) => {
+    const res = await fetch('/api/bureaux', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ id, data }),
+    });
+    if (!res.ok) throw new Error('Erreur modification bureau');
+    return res.json();
+  },
+  delete: async (id: string) => {
+    const res = await fetch('/api/bureaux', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ id }),
+    });
+    if (!res.ok) throw new Error('Erreur suppression bureau');
+    return res.json();
+  },
+};
+
+const mapBureauToOffice = (b: any): Office => ({
+  id:         String(b.id_bureau),
+  number:     b.numero || String(b.id_bureau),  // champ numéro dédié, fallback sur id
+  name:       b.nom || '',                       // nom est le nom du bureau, pas le numéro
+  floor:      b.etage,
+  type:       b.type === 'individuel' ? 'individual' : 'open-space',
+  cotisation: b.cotisation,
+  status:     b.statut === 'actif' ? 'occupied' : 'available',
+  telephone:  b.telephone || '',
+  email:      b.email || '',
+  notes:      '',
+  createdAt:  new Date().toISOString(),
+  updatedAt:  new Date().toISOString(),
+});
+
+const mapOfficeToBureau = (o: Office) => ({
+  numero:     parseInt(o.number) || null,         
+  nom:        o.name || '',      
+  etage:      o.floor,
+  type:       o.type === 'individual' ? 'individuel' : 'centre',
+  statut:     o.status === 'occupied' ? 'actif' : 'inactif',
+  cotisation: o.cotisation,
+  telephone:  o.telephone || null,
+  email:      o.email || null,
+});
+
 export default function BureauxPage() {
-  const [offices, setOffices] = useState<Office[]>(mockOffices);
+  const [offices, setOffices] = useState<Office[]>([]);
   const [filter, setFilter] = useState<FilterStatus>('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    bureauxApi.getAll()
+      .then((data) => setOffices(data.map(mapBureauToOffice)))
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   const filteredOffices =
-    filter === 'all'
-      ? offices
-      : offices.filter((o) => o.status === filter);
+    filter === 'all' ? offices : offices.filter((o) => o.status === filter);
 
-  const handleAddOffice = (newOffice: Office) => {
-    setOffices([...offices, newOffice]);
+  const handleAddOffice = async (newOffice: Office) => {
+    try {
+      const created = await bureauxApi.create(mapOfficeToBureau(newOffice));
+      setOffices([...offices, mapBureauToOffice(created)]);
+    } catch (err: any) {
+      alert(err.message);
+    }
   };
 
-  const handleUpdateOffice = (updatedOffice: Office) => {
-    setOffices(
-      offices.map((o) => (o.id === updatedOffice.id ? updatedOffice : o))
-    );
+  const handleUpdateOffice = async (updatedOffice: Office) => {
+    try {
+      const updated = await bureauxApi.update(updatedOffice.id, mapOfficeToBureau(updatedOffice));
+      setOffices(offices.map((o) => (o.id === updatedOffice.id ? mapBureauToOffice(updated) : o)));
+    } catch (err: any) {
+      alert(err.message);
+    }
   };
 
-  const handleDeleteOffice = (officeId: string) => {
-    setOffices(offices.filter((o) => o.id !== officeId));
+  const handleDeleteOffice = async (officeId: string) => {
+    try {
+      await bureauxApi.delete(officeId);
+      setOffices(offices.filter((o) => o.id !== officeId));
+    } catch (err: any) {
+      alert(err.message);
+    }
   };
 
   return (
@@ -71,12 +152,16 @@ export default function BureauxPage() {
             </div>
           </div>
 
-          <OfficesTable
-            offices={filteredOffices}
-            onAddOffice={handleAddOffice}
-            onUpdateOffice={handleUpdateOffice}
-            onDeleteOffice={handleDeleteOffice}
-          />
+          {loading && <p className="text-slate-500 text-center py-8">Chargement...</p>}
+          {error && <p className="text-red-500 text-center py-8">{error}</p>}
+          {!loading && !error && (
+            <OfficesTable
+              offices={filteredOffices}
+              onAddOffice={handleAddOffice}
+              onUpdateOffice={handleUpdateOffice}
+              onDeleteOffice={handleDeleteOffice}
+            />
+          )}
         </Card>
       </div>
     </MainLayout>

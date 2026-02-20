@@ -9,6 +9,7 @@ export async function GET(request: Request) {
     const items = await BureauService.findAll()
     return NextResponse.json(items)
   } catch (err) {
+    console.error('ERREUR GET:', err)
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
 }
@@ -18,9 +19,11 @@ export async function POST(request: Request) {
     const user = await AuthService.requireAuth(request, ['admin'])
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     const data = await request.json()
+    console.log('DATA REÇUE:', JSON.stringify(data, null, 2))
     const item = await BureauService.create(data)
     return NextResponse.json(item, { status: 201 })
   } catch (err) {
+    console.error('ERREUR CREATE:', err)
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
 }
@@ -31,9 +34,11 @@ export async function PUT(request: Request) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     const { id, data } = await request.json()
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
+    console.log('UPDATE ID:', id, 'DATA:', JSON.stringify(data, null, 2))
     const updated = await BureauService.update(Number(id), data)
     return NextResponse.json(updated)
   } catch (err) {
+    console.error('ERREUR UPDATE:', err)
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
 }
@@ -47,6 +52,7 @@ export async function DELETE(request: Request) {
     const deleted = await BureauService.delete(Number(id))
     return NextResponse.json(deleted)
   } catch (err) {
+    console.error('ERREUR DELETE:', err)
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
 }

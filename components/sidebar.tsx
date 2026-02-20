@@ -35,7 +35,7 @@ export function Sidebar() {
     <div className="w-64 min-h-screen bg-black text-white flex flex-col">
       <div className="p-6 border-b border-slate-700">
         <h1 className="text-2xl font-bold">CAD Syndic</h1>
-        <p className="text-sm text-slate-400 mt-1">Gestion de Bureaux</p>
+        <p className="text-sm text-slate-400 mt-1">Gestion de Syndic</p>
       </div>
 
       <nav className="flex-1 p-4 space-y-2">

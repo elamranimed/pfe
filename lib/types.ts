@@ -1,4 +1,4 @@
-// Office data type
+
 export interface Tenant {
   id: string;
   companyName: string;
@@ -7,24 +7,26 @@ export interface Tenant {
   phone: string;
   contractStart: string;
   contractEnd: string;
-  balance: number; // negative = owes money
+  balance: number; 
 }
 
 export interface Office {
   id: string;
   number: string;
+  name?: string;
   floor: number;
   type: 'individual' | 'open-space' | 'meeting-room';
-  surface: number; // m²
-  monthlyRent: number; // MAD
-  charges: number; // MAD
+  cotisation: number; 
   status: 'available' | 'occupied' | 'maintenance';
+  telephone?: string;
+  email?: string;
+  notes?: string;
   createdAt: string;
   updatedAt: string;
   tenant?: Tenant;
 }
 
-// Payment data type
+
 export interface Payment {
   id: string;
   officeId: string;
@@ -38,7 +40,7 @@ export interface Payment {
   createdAt: string;
 }
 
-// Expense data type
+
 export interface Expense {
   id: string;
   date: string;

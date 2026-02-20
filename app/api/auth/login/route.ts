@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const result = await AuthService.login(login, password)
     if (!result) return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
     const response = NextResponse.json(result)
-    // Persist token in httpOnly cookie for session-like behaviour
+    
     response.cookies.set('token', result.token, {
       httpOnly: true,
       sameSite: 'lax',

@@ -30,7 +30,7 @@ export default function LoginPage() {
         return
       }
 
-      // Redirection après connexion réussie
+      
       router.push('/')
     } catch (err) {
       setError('Erreur de connexion au serveur')

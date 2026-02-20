@@ -28,7 +28,7 @@ export const UserService = {
 	},
 
 	envoyerDemande: async (userId: number, demandeData: Prisma.DemandeCreateInput) => {
-		return prisma.demande.create({ data: { ...demandeData, user: { connect: { id_user: userId } } } })
+		return prisma.demande.create({ data: { ...demandeData, User: { connect: { id_user: userId } } } })
 	},
 
 	ajouterBureau: async (userId: number, bureauId: number) => {
