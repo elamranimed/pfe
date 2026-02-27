@@ -1,244 +1,256 @@
 'use client';
 
+import { useEffect, useMemo, useState } from 'react';
 import { MainLayout } from '@/components/main-layout';
+import { PaymentsTable } from '@/components/payments-table';
 import { Card } from '@/components/ui/card';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Building, AlertCircle, LogOut } from 'lucide-react';
-import { mockOffices, mockPayments, mockExpenses } from '@/lib/mock-data';
-import { formatCurrency, formatDate } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { formatCurrency } from '@/lib/utils';
+import { Payment, Office } from '@/lib/types';
 
-export default function DashboardPage() {
-  const router = useRouter();
+type FilterPeriod = 'this-month' | 'three-months' | 'all';
 
-  
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      router.push('/login');
-    } catch (error) {
-      console.error('Erreur de déconnexion:', error);
-    }
+const mapBureauToOffice = (b: any): Office => ({
+  id: String(b.id_bureau),
+  number: b.numero ? String(b.numero) : String(b.id_bureau),
+  name: b.nom || '',
+  floor: b.etage ?? 0,
+  type: b.type === 'individuel' ? 'individual' : 'open-space',
+  cotisation: b.cotisation ?? 0,
+  status: b.statut === 'actif' ? 'occupied' : 'available',
+  telephone: b.telephone || '',
+  email: b.email || '',
+  notes: '',
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+});
+
+const mapPaiementDto = (p: any, bureauMap: Record<string, Office>): Payment => {
+  const bureauId = p.id_bureau ?? null;
+  const bureau = bureauId ? bureauMap[String(bureauId)] : undefined;
+  const isoDate = p.date ? new Date(p.date).toISOString() : new Date().toISOString();
+  const etat = (p.etat as Payment['etat']) || 'en_cours';
+
+  return {
+    id: p.id_paiement ? String(p.id_paiement) : crypto.randomUUID(),
+    officeId: bureau?.id ?? String(bureauId ?? ''),
+    officeNumber: bureau?.number ?? '',
+    tenantName: bureau?.name ?? '',
+    amount: Number(p.montant ?? 0),
+    date: isoDate.split('T')[0],
+    type: bureau?.type,
+    reference: `PAY-${p.id_paiement ?? Date.now()}`,
+    etat,
+    status: etat === 'paye' ? 'paid' : 'pending',
+    createdAt: isoDate,
   };
+};
 
-  
-  const totalRevenue = mockPayments
-    .filter((p) => p.status === 'paid')
+export default function PaiementsPage() {
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [filterPeriod, setFilterPeriod] = useState<FilterPeriod>('this-month');
+  const [offices, setOffices] = useState<Office[]>([]);
+  const [loadingOffices, setLoadingOffices] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const load = async () => {
+      try {
+        setLoading(true);
+
+        const resB = await fetch('/api/bureaux', { credentials: 'include' });
+        if (!resB.ok) throw new Error('Erreur chargement bureaux');
+        const bureaux = await resB.json();
+        const mappedB = bureaux.map(mapBureauToOffice);
+        const bureauMap: Record<string, Office> = {};
+        mappedB.forEach((b: Office) => { bureauMap[b.id] = b; });
+        if (!mounted) return;
+        setOffices(mappedB);
+        setLoadingOffices(false);
+
+        const resP = await fetch('/api/paiements', { credentials: 'include' });
+        if (!resP.ok) throw new Error('Erreur chargement paiements');
+        const paiements = await resP.json();
+        if (!mounted) return;
+        setPayments(paiements.map((p: any) => mapPaiementDto(p, bureauMap)));
+      } catch (err: any) {
+        if (mounted) setError(err.message || 'Erreur inconnue');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    load();
+    return () => { mounted = false; };
+  }, []);
+
+  const filteredPayments = useMemo(() => {
+    const now = new Date();
+    const sorted = [...payments].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    if (filterPeriod === 'this-month') {
+      return sorted.filter((p) => {
+        const d = new Date(p.date);
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+      });
+    }
+    if (filterPeriod === 'three-months') {
+      const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+      return sorted.filter((p) => new Date(p.date) >= threeMonthsAgo);
+    }
+    return sorted;
+  }, [payments, filterPeriod]);
+
+  const totalCollected = filteredPayments
+    .filter((p) => p.etat === 'paye' || p.status === 'paid')
     .reduce((sum, p) => sum + p.amount, 0);
 
-  const totalExpenses = mockExpenses
-    .filter((e) => e.status === 'paid')
-    .reduce((sum, e) => sum + e.amount, 0);
+  const handleAddPayment = async (payload: {
+    bureauId: string;
+    amount: number;
+    date: string;
+    etat: 'paye' | 'en_cours' | 'impaye';
+  }) => {
+    const res = await fetch('/api/paiements', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        montant: payload.amount,
+        date: new Date(`${payload.date}T00:00:00`).toISOString(),
+        id_bureau: Number(payload.bureauId),
+        etat: payload.etat,
+      }),
+    });
+    if (!res.ok) {
+      const txt = await res.text().catch(() => '');
+      throw new Error(txt || 'Erreur création paiement');
+    }
+    const created = await res.json();
 
-  const occupiedOffices = mockOffices.filter(
-    (o) => o.status === 'occupied'
-  ).length;
+    const bureauMap: Record<string, Office> = {};
+    offices.forEach((b) => { bureauMap[b.id] = b; });
 
-  const totalDebt = mockOffices
-    .filter((o) => o.tenant && o.tenant.balance < 0)
-    .reduce((sum, o) => sum + (o.tenant?.balance || 0), 0);
+    const mapped = mapPaiementDto(created, bureauMap);
+    mapped.etat = payload.etat;
+    mapped.status = payload.etat === 'paye' ? 'paid' : 'pending';
 
-  
-  const recentPayments = mockPayments.slice(-5).reverse();
-
- 
-  const officesWithDebt = mockOffices
-    .filter((o) => o.tenant && o.tenant.balance < 0)
-    .map((o, idx) => ({
-      officeNumber: o.number,
-      tenantName: o.tenant?.companyName || '',
-      amount: Math.abs(o.tenant?.balance || 0),
-      daysOverdue: (idx + 1) * 5 + 10,
-    }));
-
-  const getPaymentTypeBadge = (type: string) => {
-    const types: Record<string, { label: string; variant: any }> = {
-      contribution: { label: 'Cotisation', variant: 'default' },
-      charges: { label: 'Charges', variant: 'secondary' },
-      penalty: { label: 'Pénalité', variant: 'destructive' },
-    };
-    return types[type] || { label: type, variant: 'default' };
+    setPayments((prev) => [mapped, ...prev]);
   };
 
-  const getPaymentStatusBadge = (status: string) => {
-    if (status === 'paid') {
-      return <Badge className="bg-green-100 text-green-700">Payé</Badge>;
+  const handleUpdatePayment = async (payload: {
+    id?: string;
+    bureauId: string;
+    amount: number;
+    date: string;
+    etat: 'paye' | 'en_cours' | 'impaye';
+  }) => {
+    if (!payload.id) return;
+    const res = await fetch('/api/paiements', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        id: Number(payload.id),
+        data: {
+          montant: payload.amount,
+          date: new Date(`${payload.date}T00:00:00`).toISOString(),
+          id_bureau: Number(payload.bureauId),
+          etat: payload.etat,
+        },
+      }),
+    });
+    if (!res.ok) {
+      const txt = await res.text().catch(() => '');
+      throw new Error(txt || 'Erreur mise à jour paiement');
     }
-    return <Badge className="bg-orange-100 text-orange-700">En Attente</Badge>;
+    const updated = await res.json();
+
+    const bureauMap: Record<string, Office> = {};
+    offices.forEach((b) => { bureauMap[b.id] = b; });
+
+    const mapped = mapPaiementDto(updated, bureauMap);
+    mapped.etat = payload.etat;
+    mapped.status = payload.etat === 'paye' ? 'paid' : 'pending';
+
+    setPayments((prev) => prev.map((p) => (p.id === payload.id ? mapped : p)));
+  };
+
+  const handleDeletePayment = async (id: string) => {
+    const res = await fetch('/api/paiements', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ id: Number(id) }),
+    });
+    if (!res.ok) {
+      const txt = await res.text().catch(() => '');
+      throw new Error(txt || 'Erreur suppression paiement');
+    }
+
+    setPayments((prev) => prev.filter((p) => p.id !== id));
   };
 
   return (
     <MainLayout>
       <div className="space-y-8">
-        {/* Header avec bouton de déconnexion */}
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-4xl font-bold text-slate-900 mb-2">
-              Tableau de Bord
-            </h1>
-            <p className="text-slate-600">
-              Aperçu de la gestion de votre bâtiment
-            </p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            Déconnexion
-          </button>
+        <div>
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">
+            Paiements
+          </h1>
+          <p className="text-slate-600">
+            Gestion des paiements de cotisations et charges
+          </p>
         </div>
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-slate-600 text-sm font-medium mb-2">
-                  Revenus Totaux (Ce Mois)
-                </p>
-                <p className="text-3xl font-bold text-slate-900">
-                  {formatCurrency(totalRevenue)}
-                </p>
-              </div>
-              <div className="p-3 bg-green-100 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-slate-600 text-sm font-medium mb-2">
-                  Dépenses Totales (Ce Mois)
-                </p>
-                <p className="text-3xl font-bold text-slate-900">
-                  {formatCurrency(totalExpenses)}
-                </p>
-              </div>
-              <div className="p-3 bg-red-100 rounded-lg">
-                <TrendingDown className="w-6 h-6 text-red-600" />
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-slate-600 text-sm font-medium mb-2">
-                  Bureaux Occupés
-                </p>
-                <p className="text-3xl font-bold text-slate-900">
-                  {occupiedOffices}/{mockOffices.length}
-                </p>
-              </div>
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <Building className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-slate-600 text-sm font-medium mb-2">
-                  Dettes Impayées
-                </p>
-                <p className="text-3xl font-bold text-slate-900">
-                  {formatCurrency(Math.abs(totalDebt))}
-                </p>
-              </div>
-              <div className="p-3 bg-orange-100 rounded-lg">
-                <AlertCircle className="w-6 h-6 text-orange-600" />
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        {/* Recent Payments */}
         <Card className="p-6">
-          <h2 className="text-xl font-bold text-slate-900 mb-4">
-            Paiements Récents
-          </h2>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-slate-700">Date</TableHead>
-                  <TableHead className="text-slate-700">Bureau N°</TableHead>
-                  <TableHead className="text-slate-700">Locataire</TableHead>
-                  <TableHead className="text-slate-700">Montant</TableHead>
-                  <TableHead className="text-slate-700">Type</TableHead>
-                  <TableHead className="text-slate-700">Statut</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentPayments.map((payment) => {
-                  const typeBadge = getPaymentTypeBadge(payment.type);
-                  return (
-                    <TableRow key={payment.id}>
-                      <TableCell>{formatDate(payment.date)}</TableCell>
-                      <TableCell className="font-medium">
-                        {payment.officeNumber}
-                      </TableCell>
-                      <TableCell>{payment.tenantName}</TableCell>
-                      <TableCell className="font-semibold">
-                        {formatCurrency(payment.amount)}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={typeBadge.variant as any}>
-                          {typeBadge.label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{getPaymentStatusBadge(payment.status)}</TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        </Card>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <div className="flex items-center gap-4">
+              <span className="text-slate-700 font-medium">Période:</span>
+              <Select
+                value={filterPeriod}
+                onValueChange={(v) => setFilterPeriod(v as FilterPeriod)}
+              >
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="this-month">Ce Mois</SelectItem>
+                  <SelectItem value="three-months">3 Derniers Mois</SelectItem>
+                  <SelectItem value="all">Tout</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        {/* Offices with Unpaid Debts */}
-        <Card className="p-6">
-          <h2 className="text-xl font-bold text-slate-900 mb-4">
-            Bureaux avec Dettes Impayées
-          </h2>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-slate-700">Bureau N°</TableHead>
-                  <TableHead className="text-slate-700">Locataire</TableHead>
-                  <TableHead className="text-slate-700">Montant Dû</TableHead>
-                  <TableHead className="text-slate-700">Jours de Retard</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {officesWithDebt.map((item, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell className="font-medium">
-                      {item.officeNumber}
-                    </TableCell>
-                    <TableCell>{item.tenantName}</TableCell>
-                    <TableCell className="font-semibold text-red-600">
-                      {formatCurrency(item.amount)}
-                    </TableCell>
-                    <TableCell>{item.daysOverdue}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div className="bg-blue-50 px-4 py-3 rounded-lg">
+              <p className="text-sm text-slate-600 mb-1">Total Collecté</p>
+              <p className="text-2xl font-bold text-blue-600">
+                {formatCurrency(totalCollected)}
+              </p>
+            </div>
           </div>
+
+          {error && <p className="text-red-600 mb-4">{error}</p>}
+          {loading && <p className="text-slate-500 mb-4">Chargement...</p>}
+
+          <PaymentsTable
+            payments={filteredPayments}
+            offices={offices}
+            loadingOffices={loadingOffices}
+            onAddPayment={handleAddPayment}
+            onUpdatePayment={handleUpdatePayment}
+            onDeletePayment={handleDeletePayment}
+          />
         </Card>
       </div>
     </MainLayout>

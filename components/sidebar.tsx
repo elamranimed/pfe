@@ -32,10 +32,10 @@ export function Sidebar() {
   ];
 
   return (
-    <div className="w-64 min-h-screen bg-black text-white flex flex-col">
-      <div className="p-6 border-b border-slate-700">
+    <div className="w-50 min-h-screen bg-white text-slate-900 flex flex-col">
+      <div className="p-6 border-b border-slate-200">
         <h1 className="text-2xl font-bold">CAD Syndic</h1>
-        <p className="text-sm text-slate-400 mt-1">Gestion de Syndic</p>
+        <p className="text-sm text-slate-600 mt-1">Gestion de Syndic</p>
       </div>
 
       <nav className="flex-1 p-4 space-y-2">
@@ -50,7 +50,7 @@ export function Sidebar() {
                 'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
                 isActive
                   ? 'bg-blue-600 text-white'
-                  : 'text-slate-300 hover:bg-slate-800'
+                  : 'text-slate-700 hover:bg-slate-100'
               )}
             >
               <Icon className="w-5 h-5" />
@@ -60,8 +60,8 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-slate-700 text-xs text-slate-400">
-        <p>© 2026 Gestion Syndic</p>
+      <div className="p-4 border-t border-slate-200 text-xs text-slate-600">
+        <p>Â© 2026 Gestion Syndic</p>
       </div>
     </div>
   );
