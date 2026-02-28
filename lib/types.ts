@@ -1,4 +1,3 @@
-
 export interface Tenant {
   id: string;
   companyName: string;
@@ -7,7 +6,7 @@ export interface Tenant {
   phone: string;
   contractStart: string;
   contractEnd: string;
-  balance: number; 
+  balance: number;
 }
 
 export interface Office {
@@ -16,7 +15,7 @@ export interface Office {
   name?: string;
   floor: number;
   type: 'individual' | 'open-space' | 'meeting-room';
-  cotisation: number; 
+  cotisation: number;
   status: 'available' | 'occupied' | 'maintenance';
   telephone?: string;
   email?: string;
@@ -26,7 +25,6 @@ export interface Office {
   tenant?: Tenant;
 }
 
-
 export interface Payment {
   id: string;
   officeId: string;
@@ -34,12 +32,13 @@ export interface Payment {
   tenantName: string;
   amount: number;
   date: string;
-  type: 'rent' | 'charges' | 'penalty';
-  reference: string;
-  status: 'paid' | 'pending';
+  /** type libre (issu du bureau ou autre) */
+  type?: string;
+  reference?: string;
+  etat: 'paye' | 'en_cours' | 'impaye';
+  status?: 'paid' | 'pending';
   createdAt: string;
 }
-
 
 export interface Expense {
   id: string;

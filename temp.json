@@ -1,0 +1,2666 @@
+[
+    {
+        "bureau":  1,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  1,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  1,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  1,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  1,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  1,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  1,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  1,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  1,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  null
+    },
+    {
+        "bureau":  1,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  1,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  1,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  2,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  2,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  2,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  2,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  2,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  2,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  2,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  2,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  2,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  null
+    },
+    {
+        "bureau":  2,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  2,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  2,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  3,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  3,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  3,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  3,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  3,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  3,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  3,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  3,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  3,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  3,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  3,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  3,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  4,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  4,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  4,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  4,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  4,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  4,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  4,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  4,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  4,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  4,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  4,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  4,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  5,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  5,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  5,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  5,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  5,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  5,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  5,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  5,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  5,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  5,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  5,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  5,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  6,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  6,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  6,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  6,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  6,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  6,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  6,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  6,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  6,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  6,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  6,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  6,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  7,
+        "month":  "01",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  7,
+        "month":  "02",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  7,
+        "month":  "03",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  7,
+        "month":  "04",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  7,
+        "month":  "05",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  7,
+        "month":  "06",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  7,
+        "month":  "07",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  7,
+        "month":  "08",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  7,
+        "month":  "09",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  7,
+        "month":  "10",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  7,
+        "month":  "11",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  7,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  8,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  8,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  8,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  8,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  8,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  8,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  8,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  8,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  8,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  8,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  8,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  8,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  9,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  9,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  9,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  9,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  9,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  9,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  9,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  9,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  9,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  9,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  9,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  9,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  10,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  10,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  10,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  10,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  10,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  10,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  10,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  10,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  10,
+        "month":  "09",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  10,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  10,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  10,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  11,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  11,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  11,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  11,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  11,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  11,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  11,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  11,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  11,
+        "month":  "09",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  11,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  11,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  11,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  12,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  12,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  12,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  12,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  12,
+        "month":  "05",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  12,
+        "month":  "06",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  12,
+        "month":  "07",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  12,
+        "month":  "08",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  12,
+        "month":  "09",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  12,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  12,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  12,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  13,
+        "month":  "01",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  13,
+        "month":  "02",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  13,
+        "month":  "03",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  13,
+        "month":  "04",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  13,
+        "month":  "05",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  13,
+        "month":  "06",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  13,
+        "month":  "07",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  13,
+        "month":  "08",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  13,
+        "month":  "09",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  13,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  13,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  13,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  14,
+        "month":  "01",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  14,
+        "month":  "02",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  14,
+        "month":  "03",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  14,
+        "month":  "04",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  14,
+        "month":  "05",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  14,
+        "month":  "06",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  14,
+        "month":  "07",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  14,
+        "month":  "08",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  14,
+        "month":  "09",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  14,
+        "month":  "10",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  14,
+        "month":  "11",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  14,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  15,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  15,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  15,
+        "month":  "03",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  15,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  15,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  15,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  15,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  15,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  15,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  15,
+        "month":  "10",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  15,
+        "month":  "11",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  15,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  16,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  16,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  16,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  16,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  16,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  16,
+        "month":  "06",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  16,
+        "month":  "07",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  16,
+        "month":  "08",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  16,
+        "month":  "09",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  16,
+        "month":  "10",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  16,
+        "month":  "11",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  16,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  17,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  17,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  17,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  17,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  17,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  17,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  17,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  17,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  17,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  17,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  17,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  17,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  18,
+        "month":  "01",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  18,
+        "month":  "02",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  18,
+        "month":  "03",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  18,
+        "month":  "04",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  18,
+        "month":  "05",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  18,
+        "month":  "06",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  18,
+        "month":  "07",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  18,
+        "month":  "08",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  18,
+        "month":  "09",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  18,
+        "month":  "10",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  18,
+        "month":  "11",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  18,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  19,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  19,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  19,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  19,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  19,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  19,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  19,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  19,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  19,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  19,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  19,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  19,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  20,
+        "month":  "01",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  20,
+        "month":  "02",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  20,
+        "month":  "03",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  20,
+        "month":  "04",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  20,
+        "month":  "05",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  20,
+        "month":  "06",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  20,
+        "month":  "07",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  20,
+        "month":  "08",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  20,
+        "month":  "09",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  20,
+        "month":  "10",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  20,
+        "month":  "11",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  20,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  21,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  21,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  21,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  21,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  21,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  21,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  21,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  21,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  21,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  21,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  21,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  21,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  22,
+        "month":  "01",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  22,
+        "month":  "02",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  22,
+        "month":  "03",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  22,
+        "month":  "04",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  22,
+        "month":  "05",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  22,
+        "month":  "06",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  22,
+        "month":  "07",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  22,
+        "month":  "08",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  22,
+        "month":  "09",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  22,
+        "month":  "10",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  22,
+        "month":  "11",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  22,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  23,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  23,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  23,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  23,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  23,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  23,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  23,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  23,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  23,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  23,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  23,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  23,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  24,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  24,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  24,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  24,
+        "month":  "04",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  24,
+        "month":  "05",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  24,
+        "month":  "06",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  24,
+        "month":  "07",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  24,
+        "month":  "08",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  24,
+        "month":  "09",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  24,
+        "month":  "10",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  24,
+        "month":  "11",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  24,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  25,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  25,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  25,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  25,
+        "month":  "04",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  25,
+        "month":  "05",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  25,
+        "month":  "06",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  25,
+        "month":  "07",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  25,
+        "month":  "08",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  25,
+        "month":  "09",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  25,
+        "month":  "10",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  25,
+        "month":  "11",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  25,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  26,
+        "month":  "01",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  26,
+        "month":  "02",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  26,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  26,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  26,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  26,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  26,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  26,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  26,
+        "month":  "09",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  26,
+        "month":  "10",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  26,
+        "month":  "11",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  26,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  27,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  27,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  27,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  27,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  27,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  27,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  27,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  27,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  27,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  27,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  27,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  27,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  28,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  28,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  28,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  28,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  28,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  28,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  28,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  28,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  28,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  28,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  28,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  28,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  29,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  29,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  29,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  29,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  29,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  29,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  29,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  null
+    },
+    {
+        "bureau":  29,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  null
+    },
+    {
+        "bureau":  29,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  null
+    },
+    {
+        "bureau":  29,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  null
+    },
+    {
+        "bureau":  29,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  null
+    },
+    {
+        "bureau":  29,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  30,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  30,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  30,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  30,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  30,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  30,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  30,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  null
+    },
+    {
+        "bureau":  30,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  null
+    },
+    {
+        "bureau":  30,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  null
+    },
+    {
+        "bureau":  30,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  null
+    },
+    {
+        "bureau":  30,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  null
+    },
+    {
+        "bureau":  30,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  31,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  31,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  31,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  31,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  31,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  31,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  31,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  31,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  31,
+        "month":  "09",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  31,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  31,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  31,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  32,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  32,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  32,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  32,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  32,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  32,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  32,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  32,
+        "month":  "08",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  32,
+        "month":  "09",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  32,
+        "month":  "10",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  32,
+        "month":  "11",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  32,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  33,
+        "month":  "01",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  33,
+        "month":  "02",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  33,
+        "month":  "03",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  33,
+        "month":  "04",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  33,
+        "month":  "05",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  33,
+        "month":  "06",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  33,
+        "month":  "07",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  33,
+        "month":  "08",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  33,
+        "month":  "09",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  33,
+        "month":  "10",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  33,
+        "month":  "11",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  33,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  34,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  34,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  34,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  34,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  34,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  34,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  34,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  34,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  34,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  34,
+        "month":  "10",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  34,
+        "month":  "11",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  34,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  35,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  35,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  35,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  35,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  35,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  35,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  35,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  35,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  35,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  35,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  35,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  35,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  36,
+        "month":  "01",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  36,
+        "month":  "02",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  36,
+        "month":  "03",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  36,
+        "month":  "04",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  36,
+        "month":  "05",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  36,
+        "month":  "06",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  36,
+        "month":  "07",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  36,
+        "month":  "08",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  36,
+        "month":  "09",
+        "status":  "paye",
+        "amount":  250
+    },
+    {
+        "bureau":  36,
+        "month":  "10",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  36,
+        "month":  "11",
+        "status":  "paye",
+        "amount":  200
+    },
+    {
+        "bureau":  36,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    },
+    {
+        "bureau":  37,
+        "month":  "01",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  37,
+        "month":  "02",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  37,
+        "month":  "03",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  37,
+        "month":  "04",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  37,
+        "month":  "05",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  37,
+        "month":  "06",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  37,
+        "month":  "07",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  37,
+        "month":  "08",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  37,
+        "month":  "09",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  37,
+        "month":  "10",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  37,
+        "month":  "11",
+        "status":  "encours",
+        "amount":  null
+    },
+    {
+        "bureau":  37,
+        "month":  "12",
+        "status":  "",
+        "amount":  0
+    }
+]

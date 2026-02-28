@@ -6,7 +6,12 @@ export const BureauService = {
   findById: async (id: number) => prisma.bureau.findUnique({ where: { id_bureau: id } }),
   findAll:  async () => prisma.bureau.findMany(),
   update:   async (id: number, data: Prisma.BureauUpdateInput) => prisma.bureau.update({ where: { id_bureau: id }, data }),
-  delete:   async (id: number) => prisma.bureau.delete({ where: { id_bureau: id } }),
+delete: async (id: number) =>
+  prisma.$transaction(async (tx) => {
+    await tx.paiement.deleteMany({ where: { id_bureau: id } });
+    await tx.demande.deleteMany({ where: { bureauid: id } });
+    return tx.bureau.delete({ where: { id_bureau: id } });
+  }),
 
   addUser: async (bureauId: number, userId: number) => {
     return prisma.bureau.update({

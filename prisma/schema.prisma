@@ -16,13 +16,12 @@ model User {
   login    String     @unique @db.VarChar(255)
   password String     @db.VarChar(255)
   Demande  Demande[]
-  Paiement Paiement[]
   bureaux  Bureau[]   @relation("UserBureau")
 }
 
 model Bureau {
   id_bureau  Int        @id @default(autoincrement())
-  numero     Int    
+  numero     Int
   nom        String?    @db.VarChar(255)
   etage      Int
   telephone  String?    @db.VarChar(255)
@@ -50,11 +49,9 @@ model Paiement {
   id_paiement Int       @id @default(autoincrement())
   montant     Int
   date        DateTime? @default(now()) @db.Timestamp(6)
-  note        String?   @db.VarChar(255)
-  bureauid    Int?
-  userid      Int?
-  Bureau      Bureau?   @relation(fields: [bureauid], references: [id_bureau], onDelete: NoAction, onUpdate: NoAction)
-  User        User?     @relation(fields: [userid], references: [id_user], onDelete: NoAction, onUpdate: NoAction)
+  etat        String?   @db.VarChar(255)   // paye | en attente | impaye
+  id_bureau   Int
+  Bureau      Bureau    @relation(fields: [id_bureau], references: [id_bureau], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum Role {
