@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { MainLayout } from '@/components/main-layout';
 import { Payment, Office } from '@/lib/types';
+import * as XLSX from 'xlsx';
 
 const mapBureauToOffice = (b: any): Office => ({
   id: String(b.id_bureau),
@@ -211,17 +212,52 @@ export default function DashboardPage() {
     return true;
   });
 
-  const exportCSV = () => {
+  const exportXLSX = () => {
     const headers = ['Bureau', 'Locataire', ...MONTHS];
     const rows = bureauRows.map(row => [
-      row.numero, row.locataire,
+      row.numero,
+      row.locataire,
       ...row.months.map(m => `${statusConfig[m.status].label} - ${m.amount} MAD`),
     ]);
-    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `paiements-${year}.csv`; a.click();
+
+    const wsData = [headers, ...rows];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    ws['!cols'] = [
+      { wch: 14 },
+      { wch: 16 },
+      ...MONTHS.map(() => ({ wch: 18 })),
+    ];
+
+    const headerRange = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+    for (let c = headerRange.s.c; c <= headerRange.e.c; c++) {
+      const cellRef = XLSX.utils.encode_cell({ r: 0, c });
+      if (ws[cellRef]) {
+        ws[cellRef].s = {
+          font: { bold: true, color: { rgb: 'FFFFFF' } },
+          fill: { fgColor: { rgb: '1E293B' } },
+          alignment: { horizontal: 'center' },
+        };
+      }
+    }
+
+    for (let r = 1; r <= rows.length; r++) {
+      for (let c = 2; c <= MONTHS.length + 1; c++) {
+        const cellRef = XLSX.utils.encode_cell({ r, c });
+        if (ws[cellRef]) {
+          const val = String(ws[cellRef].v || '');
+          const isPaye = val.startsWith('Payé');
+          ws[cellRef].s = {
+            font: { color: { rgb: isPaye ? '15803D' : 'B91C1C' } },
+            alignment: { horizontal: 'center' },
+          };
+        }
+      }
+    }
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, `Revenus ${year}`);
+    XLSX.writeFile(wb, `paiements-${year}.xlsx`);
   };
 
   const statusOptions = [
@@ -273,7 +309,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <button
-              onClick={exportCSV}
+              onClick={exportXLSX}
               className="flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-300 border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all"
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -281,7 +317,7 @@ export default function DashboardPage() {
                 <polyline points="7 10 12 15 17 10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
-              Exporter CSV
+              Exporter XLSX
             </button>
           </div>
 
