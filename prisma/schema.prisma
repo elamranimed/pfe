@@ -8,20 +8,19 @@ datasource db {
 }
 
 model User {
-  id_user  Int        @id @default(autoincrement())
-  nom      String     @db.VarChar(255)
-  prenom   String     @db.VarChar(255)
+  id_user  Int       @id @default(autoincrement())
+  nom      String    @db.VarChar(255)
+  prenom   String    @db.VarChar(255)
   role     Role
-  email    String     @unique @db.VarChar(255)
-  login    String     @unique @db.VarChar(255)
-  password String     @db.VarChar(255)
+  email    String    @unique @db.VarChar(255)
+  login    String    @unique @db.VarChar(255)
+  password String    @db.VarChar(255)
   Demande  Demande[]
-  bureaux  Bureau[]   @relation("UserBureau")
+  bureaux  Bureau[]  @relation("UserBureau")
 }
 
 model Bureau {
   id_bureau  Int        @id @default(autoincrement())
-  numero     Int
   nom        String?    @db.VarChar(255)
   etage      Int
   telephone  String?    @db.VarChar(255)
@@ -29,6 +28,7 @@ model Bureau {
   type       Type
   statut     Statut
   cotisation Int
+  numero     Int
   Demande    Demande[]
   Paiement   Paiement[]
   users      User[]     @relation("UserBureau")
@@ -49,9 +49,18 @@ model Paiement {
   id_paiement Int       @id @default(autoincrement())
   montant     Int
   date        DateTime? @default(now()) @db.Timestamp(6)
-  etat        String?   @db.VarChar(255)   // paye | en attente | impaye
   id_bureau   Int
+  etat        String?   @db.VarChar(255)
   Bureau      Bureau    @relation(fields: [id_bureau], references: [id_bureau], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Expenses {
+  date        DateTime @db.Date
+  category    String
+  description String   @id
+  provider    String
+  amount      BigInt
 }
 
 enum Role {

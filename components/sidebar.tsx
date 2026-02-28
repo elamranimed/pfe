@@ -26,7 +26,7 @@ export function Sidebar() {
     },
     {
       href: '/depenses',
-      label: 'DÃ©penses',
+      label: 'Dépenses',
       icon: Receipt,
     },
   ];

@@ -4,8 +4,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { MainLayout } from '@/components/main-layout';
 import { Payment, Office } from '@/lib/types';
 
-// ─── helpers ─────────────────────────────────────────────────────────────────
-
 const mapBureauToOffice = (b: any): Office => ({
   id: String(b.id_bureau),
   number: b.numero ? String(b.numero) : String(b.id_bureau),
@@ -41,8 +39,6 @@ const mapPaiementDto = (p: any, bureauMap: Record<string, Office>): Payment => {
   };
 };
 
-// ─── Custom Dropdown ──────────────────────────────────────────────────────────
-
 function Dropdown({ value, onChange, options }: {
   value: string;
   onChange: (v: string) => void;
@@ -72,7 +68,6 @@ function Dropdown({ value, onChange, options }: {
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
-
       {open && (
         <div
           className="absolute top-full left-0 mt-1 rounded-xl shadow-2xl z-50 overflow-hidden"
@@ -105,8 +100,6 @@ function Dropdown({ value, onChange, options }: {
   );
 }
 
-// ─── Types tableau annuel ─────────────────────────────────────────────────────
-
 type PaymentStatus = 'paye' | 'non_paye';
 
 interface MonthPayment {
@@ -128,8 +121,6 @@ const statusConfig: Record<PaymentStatus, { label: string; bg: string; text: str
   non_paye: { label: 'Non payé', bg: 'rgba(127,29,29,0.35)', text: '#f87171', dot: '#f87171' },
 };
 
-// ─── Cellule ──────────────────────────────────────────────────────────────────
-
 function PaymentCell({ payment }: { payment: MonthPayment }) {
   const cfg = statusConfig[payment.status];
   return (
@@ -147,8 +138,6 @@ function PaymentCell({ payment }: { payment: MonthPayment }) {
   );
 }
 
-// ─── Page principale ──────────────────────────────────────────────────────────
-
 export default function DashboardPage() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [offices, setOffices] = useState<Office[]>([]);
@@ -156,11 +145,10 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<'tous' | PaymentStatus>('tous');
   const [bureauFilter, setBureauFilter] = useState('tous');
+  const [selectedYear, setSelectedYear] = useState(String(new Date().getFullYear()));
 
   const now = new Date();
-  const currentYear = now.getFullYear();
 
-  // Générer les années disponibles : de 2020 jusqu'à 2030
   const availableYears = useMemo(() => {
     const years = [];
     for (let y = 2030; y >= 2020; y--) {
@@ -168,8 +156,6 @@ export default function DashboardPage() {
     }
     return years;
   }, []);
-
-  const [selectedYear, setSelectedYear] = useState(String(currentYear));
 
   useEffect(() => {
     let mounted = true;
@@ -252,8 +238,6 @@ export default function DashboardPage() {
   return (
     <MainLayout>
       <div className="space-y-6">
-
-        {/* Header */}
         <div>
           <h1 className="text-4xl font-bold text-slate-900 mb-2">Tableau de Bord</h1>
           <p className="text-slate-500">
@@ -265,26 +249,16 @@ export default function DashboardPage() {
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">{error}</div>
         )}
 
-        {/* Tableau annuel */}
         <div
           className="rounded-2xl overflow-hidden"
           style={{ background: 'linear-gradient(135deg, #0f1117 0%, #161b27 100%)', border: '1px solid rgba(255,255,255,0.07)' }}
         >
-          {/* Top bar */}
           <div className="flex flex-wrap items-center justify-between gap-4 px-6 py-4 border-b border-white/5">
             <div className="flex flex-wrap items-center gap-4">
-
-              {/* Sélecteur année */}
               <div className="flex items-center gap-2">
                 <span className="text-xs text-slate-400 uppercase tracking-widest">Année</span>
-                <Dropdown
-                  value={selectedYear}
-                  onChange={setSelectedYear}
-                  options={availableYears}
-                />
+                <Dropdown value={selectedYear} onChange={setSelectedYear} options={availableYears} />
               </div>
-
-              {/* Sélecteur statut */}
               <div className="flex items-center gap-2">
                 <span className="text-xs text-slate-400 uppercase tracking-widest">Statut</span>
                 <Dropdown
@@ -293,18 +267,11 @@ export default function DashboardPage() {
                   options={statusOptions}
                 />
               </div>
-
-              {/* Sélecteur bureau */}
               <div className="flex items-center gap-2">
                 <span className="text-xs text-slate-400 uppercase tracking-widest">Bureau</span>
-                <Dropdown
-                  value={bureauFilter}
-                  onChange={setBureauFilter}
-                  options={bureauOptions}
-                />
+                <Dropdown value={bureauFilter} onChange={setBureauFilter} options={bureauOptions} />
               </div>
             </div>
-
             <button
               onClick={exportCSV}
               className="flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-300 border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all"
@@ -318,14 +285,12 @@ export default function DashboardPage() {
             </button>
           </div>
 
-          {/* Title */}
           <div className="px-6 py-4">
             <h2 className="text-lg font-bold text-white tracking-tight">
               Tableau des Revenus {selectedYear}
             </h2>
           </div>
 
-          {/* Table */}
           <div className="overflow-x-auto pb-4">
             {loading ? (
               <p className="text-slate-400 text-sm px-6 pb-6">Chargement...</p>
@@ -358,7 +323,6 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Legend */}
           <div className="flex items-center gap-6 px-6 py-3 border-t border-white/5">
             {Object.entries(statusConfig).map(([key, cfg]) => (
               <div key={key} className="flex items-center gap-1.5">
