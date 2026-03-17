@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Building, CreditCard, Receipt } from 'lucide-react';
+import { LayoutDashboard, Building, CreditCard, Receipt, ShieldAlert } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function Sidebar() {
@@ -23,6 +23,11 @@ export function Sidebar() {
       href: '/paiements',
       label: 'Paiements',
       icon: CreditCard,
+    },
+    {
+      href: '/recouvrement',
+      label: 'Recouvrement',
+      icon: ShieldAlert,
     },
     {
       href: '/depenses',
@@ -61,7 +66,7 @@ export function Sidebar() {
       </nav>
 
       <div className="p-4 border-t border-slate-200 text-xs text-slate-600">
-        <p>Â© 2026 Gestion Syndic</p>
+        <p>© 2026 Gestion Syndic</p>
       </div>
     </div>
   );
