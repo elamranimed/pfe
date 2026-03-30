@@ -260,6 +260,15 @@ export default function DashboardPage() {
     XLSX.writeFile(wb, `paiements-${year}.xlsx`);
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      window.location.href = '/login';
+    } catch (err) {
+      console.error('Erreur de déconnexion', err);
+    }
+  };
+
   const statusOptions = [
     { value: 'tous', label: 'Tous' },
     { value: 'paye', label: 'Payé' },
@@ -274,11 +283,24 @@ export default function DashboardPage() {
   return (
     <MainLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Tableau de Bord</h1>
-          <p className="text-slate-500">
-            {now.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-          </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-slate-900 mb-2">Tableau de Bord</h1>
+            <p className="text-slate-500">
+              {now.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors shadow-sm"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Déconnexion
+          </button>
         </div>
 
         {error && (
