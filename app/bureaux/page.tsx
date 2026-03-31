@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/select';
 import { Office } from '@/lib/types';
 
+import { getUserRole } from '@/lib/auth';
+
 type FilterStatus = 'all' | 'available' | 'occupied' | 'maintenance';
 
 const bureauxApi = {
@@ -85,6 +87,17 @@ export default function BureauxPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [role, setRole] = useState<'admin' | 'responsable' | null>(null);
+  const [roleLoading, setRoleLoading] = useState(true);
+
+  useEffect(() => {
+    const resolvedRole = getUserRole();
+    setRole(resolvedRole);
+    setRoleLoading(false);
+  }, []);
+
+  console.log("Role détecté:", role);
+
   useEffect(() => {
     bureauxApi.getAll()
       .then((data) => setOffices(data.map(mapBureauToOffice)))
@@ -121,6 +134,24 @@ export default function BureauxPage() {
       alert(err.message);
     }
   };
+
+  if (roleLoading) {
+    return (
+      <MainLayout>
+        <div className="text-center py-12">Vérification du rôle...</div>
+      </MainLayout>
+    );
+  }
+
+  if (!role) {
+    return (
+      <MainLayout>
+        <div className="text-center py-12 text-red-600">
+          Accès refusé. Vous devez être connecté en tant qu'administrateur ou responsable.
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -160,6 +191,7 @@ export default function BureauxPage() {
               onAddOffice={handleAddOffice}
               onUpdateOffice={handleUpdateOffice}
               onDeleteOffice={handleDeleteOffice}
+              userRole={role}
             />
           )}
         </Card>

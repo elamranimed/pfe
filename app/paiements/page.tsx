@@ -14,6 +14,9 @@ import {
 import { formatCurrency } from '@/lib/utils';
 import { Payment, Office } from '@/lib/types';
 
+import { getUserRole } from '@/lib/auth';
+
+
 type FilterPeriod = 'this-month' | 'three-months' | 'all';
 
 const mapBureauToOffice = (b: any): Office => ({
@@ -59,6 +62,15 @@ export default function PaiementsPage() {
   const [loadingOffices, setLoadingOffices] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [role, setRole] = useState<'admin' | 'responsable' | null>(null);
+  const [roleLoading, setRoleLoading] = useState(true);
+
+  useEffect(() => {
+    const resolvedRole = getUserRole();
+    setRole(resolvedRole);
+    setRoleLoading(false);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -195,6 +207,24 @@ export default function PaiementsPage() {
     setPayments((prev) => prev.filter((p) => p.id !== id));
   };
 
+  if (roleLoading) {
+    return (
+      <MainLayout>
+        <div className="text-center py-12">Vérification du rôle...</div>
+      </MainLayout>
+    );
+  }
+
+  if (!role) {
+    return (
+      <MainLayout>
+        <div className="text-center py-12 text-red-600">
+          Accès refusé. Vous devez être connecté en tant qu'administrateur ou responsable.
+        </div>
+      </MainLayout>
+    );
+  }
+
   return (
     <MainLayout>
       <div className="space-y-8">
@@ -235,6 +265,7 @@ export default function PaiementsPage() {
             onAddPayment={handleAddPayment}
             onUpdatePayment={handleUpdatePayment}
             onDeletePayment={handleDeletePayment}
+            userRole={role}
           />
         </Card>
       </div>

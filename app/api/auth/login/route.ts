@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     const response = NextResponse.json(result)
     
     response.cookies.set('token', result.token, {
-      httpOnly: true,
+      httpOnly: false,
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',
       path: '/',

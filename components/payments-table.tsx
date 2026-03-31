@@ -31,6 +31,7 @@ interface PaymentsTableProps {
   onAddPayment?: (payload: PaymentPayload) => Promise<void>;
   onUpdatePayment?: (payload: PaymentPayload) => Promise<void>;
   onDeletePayment?: (id: string) => Promise<void>;
+  userRole: 'admin' | 'responsable'; // 👈 ajout
 }
 
 export function PaymentsTable({
@@ -40,6 +41,7 @@ export function PaymentsTable({
   onAddPayment,
   onUpdatePayment,
   onDeletePayment,
+  userRole,
 }: PaymentsTableProps) {
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit' | 'view'>('add');
@@ -118,24 +120,27 @@ export function PaymentsTable({
 
   return (
     <div>
-      <div className="mb-4">
-        <Button onClick={openAdd} className="gap-2">
-          <Plus className="w-4 h-4" />
-          Enregistrer Paiement
-        </Button>
-      </div>
+      {/* Bouton Enregistrer Paiement visible uniquement pour admin */}
+      {userRole === 'admin' && (
+        <div className="mb-4">
+          <Button onClick={openAdd} className="gap-2">
+            <Plus className="w-4 h-4" />
+            Enregistrer Paiement
+          </Button>
+        </div>
+      )}
 
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-slate-700">Date</TableHead>
-              <TableHead className="text-slate-700">Bureau N°</TableHead>
-              <TableHead className="text-slate-700">Locataire</TableHead>
-              <TableHead className="text-slate-700">Type</TableHead>
-              <TableHead className="text-slate-700">Montant</TableHead>
-              <TableHead className="text-slate-700">État</TableHead>
-              <TableHead className="text-slate-700">Actions</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead>Bureau N°</TableHead>
+              <TableHead>Locataire</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Montant</TableHead>
+              <TableHead>État</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -167,9 +172,7 @@ export function PaymentsTable({
                 return (
                   <TableRow key={payment.id || payment.reference || payment.date + payment.amount}>
                     <TableCell>{formatDate(payment.date)}</TableCell>
-                    <TableCell className="font-medium">
-                      {bureauNumber}
-                    </TableCell>
+                    <TableCell className="font-medium">{bureauNumber}</TableCell>
                     <TableCell>{tenantDisplay}</TableCell>
                     <TableCell>
                       <Badge variant={typeBadge.variant as any}>
@@ -182,6 +185,7 @@ export function PaymentsTable({
                     <TableCell>{getEtatBadge(payment.etat || payment.status)}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
+                        {/* Voir toujours visible */}
                         <Button
                           variant="ghost"
                           size="sm"
@@ -191,24 +195,30 @@ export function PaymentsTable({
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          title="Modifier"
-                          className="text-slate-600"
-                          onClick={() => openEdit(payment)}
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          title="Supprimer"
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          onClick={() => handleDelete(payment)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+
+                        {/* Modifier et Supprimer visibles uniquement pour admin */}
+                        {userRole === 'admin' && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              title="Modifier"
+                              className="text-slate-600"
+                              onClick={() => openEdit(payment)}
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              title="Supprimer"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              onClick={() => handleDelete(payment)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

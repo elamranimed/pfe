@@ -32,8 +32,8 @@ interface OfficesTableProps {
   onAddOffice: (office: Office) => void;
   onUpdateOffice: (office: Office) => void;
   onDeleteOffice?: (officeId: string) => void;
+  userRole: 'admin' | 'responsable'; // 👈 ajout
 }
-
 
 function cleanString(value?: string | null): string | null {
   if (!value) return null;
@@ -47,6 +47,7 @@ export function OfficesTable({
   onAddOffice,
   onUpdateOffice,
   onDeleteOffice,
+  userRole,
 }: OfficesTableProps) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingOffice, setEditingOffice] = useState<Office | null>(null);
@@ -104,32 +105,35 @@ export function OfficesTable({
 
   return (
     <div>
-      <div className="mb-4">
-        <Button
-          onClick={() => {
-            setEditingOffice(null);
-            setShowAddModal(true);
-          }}
-          className="gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Ajouter Bureau
-        </Button>
-      </div>
+      {/* Bouton Ajouter Bureau visible uniquement pour admin */}
+      {userRole === 'admin' && (
+        <div className="mb-4">
+          <Button
+            onClick={() => {
+              setEditingOffice(null);
+              setShowAddModal(true);
+            }}
+            className="gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Ajouter Bureau
+          </Button>
+        </div>
+      )}
 
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-slate-700">N° Bureau</TableHead>
-              <TableHead className="text-slate-700">Locataire (Nom du Bureau)</TableHead>
-              <TableHead className="text-slate-700">Étage</TableHead>
-              <TableHead className="text-slate-700">Type</TableHead>
-              <TableHead className="text-slate-700">Téléphone</TableHead>
-              <TableHead className="text-slate-700">Email</TableHead>
-              <TableHead className="text-slate-700">Cotisation</TableHead>
-              <TableHead className="text-slate-700">Statut</TableHead>
-              <TableHead className="text-slate-700">Actions</TableHead>
+              <TableHead>N° Bureau</TableHead>
+              <TableHead>Locataire (Nom du Bureau)</TableHead>
+              <TableHead>Étage</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Téléphone</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Cotisation</TableHead>
+              <TableHead>Statut</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
 
@@ -137,8 +141,6 @@ export function OfficesTable({
             {offices.map((office) => {
               const phone = resolvePhone(office);
               const email = resolveEmail(office);
-
-              
               const displayName =
                 cleanString(office.tenant?.companyName) ||
                 cleanString(office.name) ||
@@ -146,28 +148,18 @@ export function OfficesTable({
 
               return (
                 <TableRow key={office.id}>
-                  <TableCell className="font-bold text-slate-900">{office.number}</TableCell>
-
-                  <TableCell className="text-slate-700">
-                    {displayName ?? <span className="text-slate-400 italic">—</span>}
-                  </TableCell>
-
+                  <TableCell className="font-bold">{office.number}</TableCell>
+                  <TableCell>{displayName ?? <span className="italic">—</span>}</TableCell>
                   <TableCell>{office.floor}</TableCell>
                   <TableCell>{getTypeBadge(office.type)}</TableCell>
-
-                  <TableCell className="text-slate-700">
-                    {phone ? <a href={`tel:${phone}`} className="underline">{phone}</a> : '—'}
-                  </TableCell>
-
-                  <TableCell className="text-slate-700">
-                    {email ? <a href={`mailto:${email}`} className="underline">{email}</a> : '—'}
-                  </TableCell>
-
-                  <TableCell className="font-medium">{formatCurrency(office.cotisation)}</TableCell>
+                  <TableCell>{phone ? <a href={`tel:${phone}`}>{phone}</a> : '—'}</TableCell>
+                  <TableCell>{email ? <a href={`mailto:${email}`}>{email}</a> : '—'}</TableCell>
+                  <TableCell>{formatCurrency(office.cotisation)}</TableCell>
                   <TableCell>{getStatusBadge(office.status)}</TableCell>
 
                   <TableCell>
                     <div className="flex gap-2">
+                      {/* Afficher toujours */}
                       <Button
                         variant="ghost"
                         size="sm"
@@ -177,27 +169,32 @@ export function OfficesTable({
                         <Eye className="w-4 h-4" />
                       </Button>
 
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setEditingOffice(office);
-                          setShowAddModal(true);
-                        }}
-                        title="Modifier"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </Button>
+                      {/* Modifier et Supprimer visibles uniquement pour admin */}
+                      {userRole === 'admin' && (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditingOffice(office);
+                              setShowAddModal(true);
+                            }}
+                            title="Modifier"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </Button>
 
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDeletingOffice(office)}
-                        title="Supprimer"
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeletingOffice(office)}
+                            title="Supprimer"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
