@@ -40,7 +40,7 @@ export function ExpensesTable({
       maintenance: 'bg-orange-100 text-orange-700 hover:bg-orange-100',
       insurance: 'bg-red-100 text-red-700 hover:bg-red-100',
     };
-    return colors[category] || 'bg-slate-100 text-slate-700 hover:bg-slate-100';
+    return colors[category] || 'bg-secondary text-secondary-foreground hover:bg-secondary/80';
   };
 
   const getStatusBadge = (status: string) => {
@@ -72,7 +72,7 @@ export function ExpensesTable({
     {
       accessorKey: 'supplier',
       header: 'Fournisseur',
-      cell: ({ row }) => <span className="text-slate-700">{row.original.supplier}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.supplier}</span>,
     },
     {
       accessorKey: 'amount',

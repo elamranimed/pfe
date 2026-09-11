@@ -4,34 +4,43 @@ import { AuthService } from './services/AuthService'
 
 async function createResponsableUser() {
   try {
-    // Vérifier si un responsable existe déjà
-    const existingResponsable = await prisma.user.findFirst({
-      where: { role: 'responsable' },
+    const login = 'respo1'
+    const password = 'respo123'
+    
+    // Vérifier si cet utilisateur existe déjà
+    const existingUser = await prisma.user.findUnique({
+      where: { login },
     })
 
-    if (existingResponsable) {
-      console.log('✅ Un utilisateur responsable existe déjà:', existingResponsable.login)
+    const hashedPassword = await AuthService.hashPassword(password)
+
+    if (existingUser) {
+      console.log(`✅ L'utilisateur ${login} existe déjà. Mise à jour du mot de passe et rôle...`)
+      await prisma.user.update({
+        where: { login },
+        data: { password: hashedPassword, role: 'responsable' }
+      })
+      console.log(`✅ Mot de passe mis à jour avec succès!`)
+      console.log('Login:', login)
+      console.log('Mot de passe:', password)
       return
     }
-
-    // Hash du mot de passe par défaut
-    const hashedPassword = await AuthService.hashPassword('responsable123')
 
     // Création du responsable
     const responsable = await prisma.user.create({
       data: {
         nom: 'Responsable',
-        prenom: 'System',
+        prenom: 'Test',
         role: 'responsable',
-        email: 'responsable@example.com',
-        login: 'responsable',
+        email: 'respo1@example.com',
+        login: login,
         password: hashedPassword,
       },
     })
 
     console.log('✅ Utilisateur responsable créé avec succès!')
     console.log('Login:', responsable.login)
-    console.log('Mot de passe:', 'responsable123')
+    console.log('Mot de passe:', password)
   } catch (error) {
     console.error('❌ Erreur:', error)
   } finally {

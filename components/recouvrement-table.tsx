@@ -138,7 +138,7 @@ export function RecouvrementTable({ unpaidOffices, loading }: RecouvrementTableP
       id: 'officeNumber',
       header: 'Bureau',
       cell: ({ row }) => (
-        <span className="font-semibold text-slate-800">
+        <span className="font-semibold text-foreground">
           #{row.original.office.number}
         </span>
       ),
@@ -147,14 +147,14 @@ export function RecouvrementTable({ unpaidOffices, loading }: RecouvrementTableP
       accessorFn: (row) => row.office.name,
       id: 'officeName',
       header: 'Locataire',
-      cell: ({ row }) => <span className="text-slate-700">{row.original.office.name || '—'}</span>,
+      cell: ({ row }) => <span className="text-foreground">{row.original.office.name || '—'}</span>,
     },
     {
       accessorFn: (row) => row.office.type,
       id: 'type',
       header: 'Type',
       cell: ({ row }) => (
-        <span className="text-slate-600">
+        <span className="text-muted-foreground">
           {row.original.office.type === 'individual' ? 'Individuel' : row.original.office.type === 'open-space' ? 'Open Space' : '—'}
         </span>
       ),
@@ -162,7 +162,7 @@ export function RecouvrementTable({ unpaidOffices, loading }: RecouvrementTableP
     {
       accessorKey: 'moisImpayes',
       header: 'Mois impayés',
-      cell: ({ row }) => <span className="text-slate-700 font-medium">{row.original.moisImpayes} mois</span>,
+      cell: ({ row }) => <span className="text-foreground font-medium">{row.original.moisImpayes} mois</span>,
     },
     {
       accessorKey: 'montantMoisEnCours',
@@ -203,7 +203,7 @@ export function RecouvrementTable({ unpaidOffices, loading }: RecouvrementTableP
           <Button
             size="sm"
             variant="outline"
-            className="flex items-center gap-2 border-red-200 text-red-600 hover:bg-red-50"
+            className="flex items-center gap-2 border-destructive/30 text-destructive hover:bg-destructive/10"
             onClick={() => sendRelance(office, montantCumul, moisImpayes)}
             disabled={!office.email || isSending}
             title={!office.email ? 'Aucun email enregistré' : `Envoyer à ${office.email}`}
@@ -211,7 +211,7 @@ export function RecouvrementTable({ unpaidOffices, loading }: RecouvrementTableP
             {isSending ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : isSent ? (
-              <CheckCircle2 className="w-4 h-4 text-green-600" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
             ) : (
               <Mail className="w-4 h-4" />
             )}
@@ -223,15 +223,15 @@ export function RecouvrementTable({ unpaidOffices, loading }: RecouvrementTableP
   ], [sendingEmails, sentEmails]);
 
   if (loading) {
-    return <p className="text-slate-500 py-6 text-center">Chargement...</p>;
+    return <p className="text-muted-foreground py-6 text-center">Chargement...</p>;
   }
 
   if (unpaidOffices.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-slate-400">
-        <AlertCircle className="w-10 h-10 mb-3 text-green-400" />
-        <p className="text-lg font-medium text-slate-600">Aucun impayé</p>
-        <p className="text-sm text-slate-400 mt-1">Tous les bureaux sont à jour 🎉</p>
+      <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+        <AlertCircle className="w-10 h-10 mb-3 text-emerald-500" />
+        <p className="text-lg font-medium text-foreground">Aucun impayé</p>
+        <p className="text-sm text-muted-foreground mt-1">Tous les bureaux sont à jour 🎉</p>
       </div>
     );
   }
@@ -241,7 +241,7 @@ export function RecouvrementTable({ unpaidOffices, loading }: RecouvrementTableP
       <div className="flex justify-end">
         <Button
           onClick={sendAllRelances}
-          className="bg-red-600 hover:bg-red-700 text-white"
+          variant="destructive"
           disabled={unpaidOffices.filter(u => u.office.email).length === 0}
         >
           <Mail className="w-4 h-4 mr-2" />

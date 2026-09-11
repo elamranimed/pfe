@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
 import { Office } from '@/lib/types';
 import { AlertTriangle, Building2, TrendingDown } from 'lucide-react';
+import { KpiCard } from '@/components/kpi-card';
 
 const mapBureauToOffice = (b: any): Office => ({
   id: String(b.id_bureau),
@@ -121,50 +122,47 @@ export default function RecouvrementPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card className="p-5 flex items-center gap-4 border-red-100">
-            <div className="bg-red-100 p-3 rounded-xl">
-              <AlertTriangle className="w-6 h-6 text-red-600" />
-            </div>
-            <div>
-              <p className="text-sm text-slate-500">Bureaux impayés</p>
-              <p className="text-2xl font-bold text-red-600">{unpaidOffices.length}</p>
-            </div>
-          </Card>
-
-          <Card className="p-5 flex items-center gap-4 border-orange-100">
-            <div className="bg-orange-100 p-3 rounded-xl">
-              <TrendingDown className="w-6 h-6 text-orange-600" />
-            </div>
-            <div>
-              <p className="text-sm text-slate-500">Montant total dû</p>
-              <p className="text-2xl font-bold text-orange-600">{formatCurrency(totalUnpaid)}</p>
-            </div>
-          </Card>
-
-          <Card className="p-5 flex items-center gap-4 border-slate-100">
-            <div className="bg-slate-100 p-3 rounded-xl">
-              <Building2 className="w-6 h-6 text-slate-600" />
-            </div>
-            <div>
-              <p className="text-sm text-slate-500">Total bureaux</p>
-              <p className="text-2xl font-bold text-slate-700">{offices.length}</p>
-            </div>
-          </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <KpiCard
+            icon={<AlertTriangle className="w-5 h-5 text-red-500" />}
+            label="Bureaux impayés"
+            value={String(unpaidOffices.length)}
+            accentColor="#ef4444"
+            accentBg="rgba(239, 68, 68, 0.1)"
+          />
+          <KpiCard
+            icon={<TrendingDown className="w-5 h-5 text-amber-500" />}
+            label="Montant total dû"
+            value={formatCurrency(totalUnpaid)}
+            accentColor="#f59e0b"
+            accentBg="rgba(245, 158, 11, 0.1)"
+          />
+          <KpiCard
+            icon={<Building2 className="w-5 h-5 text-slate-500" />}
+            label="Total bureaux"
+            value={String(offices.length)}
+            accentColor="#64748b"
+            accentBg="rgba(100, 116, 139, 0.1)"
+          />
         </div>
 
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold text-slate-800 mb-4">
-            Liste des bureaux impayés
-          </h2>
+        <div className="rounded-2xl overflow-hidden bg-card border border-border shadow-sm">
+          <div className="px-6 py-4 border-b border-border">
+            <h2 className="text-lg font-bold text-card-foreground">
+              Liste des bureaux impayés
+            </h2>
+            <p className="text-xs text-muted-foreground mt-1">Cliquez sur une action pour envoyer une relance par email</p>
+          </div>
 
-          {error && <p className="text-red-600 mb-4">{error}</p>}
+          <div className="p-6">
+            {error && <p className="text-destructive mb-4 text-sm font-medium">{error}</p>}
 
-          <RecouvrementTable
-            unpaidOffices={unpaidOffices}
-            loading={loading}
-          />
-        </Card>
+            <RecouvrementTable
+              unpaidOffices={unpaidOffices}
+              loading={loading}
+            />
+          </div>
+        </div>
       </div>
     </MainLayout>
   );
