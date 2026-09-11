@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Building, CreditCard, Receipt, ShieldAlert } from 'lucide-react';
+import { LayoutDashboard, Building, CreditCard, Receipt, ShieldAlert, Grid } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ModeToggle } from '@/components/mode-toggle';
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -13,6 +14,11 @@ export function Sidebar() {
       href: '/',
       label: 'Tableau de Bord',
       icon: LayoutDashboard,
+    },
+    {
+      href: '/suivi-paiements',
+      label: 'Suivi Paiements',
+      icon: Grid,
     },
     {
       href: '/bureaux',
@@ -37,10 +43,10 @@ export function Sidebar() {
   ];
 
   return (
-    <div className="w-50 min-h-screen bg-white text-slate-900 flex flex-col">
-      <div className="p-6 border-b border-slate-200">
+    <div className="w-64 min-h-screen bg-card text-card-foreground border-r border-border flex flex-col">
+      <div className="p-6 border-b border-border">
         <h1 className="text-2xl font-bold">CAD Syndic</h1>
-        <p className="text-sm text-slate-600 mt-1">Gestion de Syndic</p>
+        <p className="text-sm text-muted-foreground mt-1">Gestion de Syndic</p>
       </div>
 
       <nav className="flex-1 p-4 space-y-2">
@@ -54,8 +60,8 @@ export function Sidebar() {
               className={cn(
                 'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
                 isActive
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-700 hover:bg-slate-100'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               )}
             >
               <Icon className="w-5 h-5" />
@@ -65,8 +71,9 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-slate-200 text-xs text-slate-600">
+      <div className="p-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
         <p>© 2026 Gestion Syndic</p>
+        <ModeToggle />
       </div>
     </div>
   );

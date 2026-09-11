@@ -157,10 +157,10 @@ export default function BureauxPage() {
     <MainLayout>
       <div className="space-y-8">
         <div>
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">
+          <h1 className="text-4xl font-bold text-foreground mb-2">
             Bureaux & Locataires
           </h1>
-          <p className="text-slate-600">
+          <p className="text-muted-foreground">
             Gestion unifiée des bureaux et informations locataires
           </p>
         </div>

@@ -1,20 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Office } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { AlertCircle, Mail, Loader2, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { DataTable } from '@/components/ui/data-table';
+import { ColumnDef } from '@tanstack/react-table';
 
 export interface UnpaidOffice {
   office: Office;
@@ -32,20 +26,6 @@ export function RecouvrementTable({ unpaidOffices, loading }: RecouvrementTableP
   const [sendingEmails, setSendingEmails] = useState<Set<string>>(new Set());
   const [sentEmails, setSentEmails] = useState<Set<string>>(new Set());
   const { toast } = useToast();
-
-  if (loading) {
-    return <p className="text-slate-500 py-6 text-center">Chargement...</p>;
-  }
-
-  if (unpaidOffices.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 text-slate-400">
-        <AlertCircle className="w-10 h-10 mb-3 text-green-400" />
-        <p className="text-lg font-medium text-slate-600">Aucun impayé</p>
-        <p className="text-sm text-slate-400 mt-1">Tous les bureaux sont à jour 🎉</p>
-      </div>
-    );
-  }
 
   const sendRelance = async (office: Office, montantCumul: number, moisImpayes: number) => {
     if (!office.email) {
@@ -152,12 +132,116 @@ export function RecouvrementTable({ unpaidOffices, loading }: RecouvrementTableP
     });
   };
 
+  const columns: ColumnDef<UnpaidOffice>[] = useMemo(() => [
+    {
+      accessorFn: (row) => row.office.number,
+      id: 'officeNumber',
+      header: 'Bureau',
+      cell: ({ row }) => (
+        <span className="font-semibold text-slate-800">
+          #{row.original.office.number}
+        </span>
+      ),
+    },
+    {
+      accessorFn: (row) => row.office.name,
+      id: 'officeName',
+      header: 'Locataire',
+      cell: ({ row }) => <span className="text-slate-700">{row.original.office.name || '—'}</span>,
+    },
+    {
+      accessorFn: (row) => row.office.type,
+      id: 'type',
+      header: 'Type',
+      cell: ({ row }) => (
+        <span className="text-slate-600">
+          {row.original.office.type === 'individual' ? 'Individuel' : row.original.office.type === 'open-space' ? 'Open Space' : '—'}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'moisImpayes',
+      header: 'Mois impayés',
+      cell: ({ row }) => <span className="text-slate-700 font-medium">{row.original.moisImpayes} mois</span>,
+    },
+    {
+      accessorKey: 'montantMoisEnCours',
+      header: 'Mois en cours',
+      cell: ({ row }) => (
+        <span className="font-bold text-orange-600">
+          {formatCurrency(row.original.montantMoisEnCours)}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'montantCumul',
+      header: 'Cumul total',
+      cell: ({ row }) => (
+        <span className="font-bold text-red-600">
+          {formatCurrency(row.original.montantCumul)}
+        </span>
+      ),
+    },
+    {
+      id: 'statut',
+      header: 'Statut',
+      cell: () => (
+        <Badge variant="destructive">
+          Impayé
+        </Badge>
+      ),
+    },
+    {
+      id: 'action',
+      header: 'Action',
+      cell: ({ row }) => {
+        const { office, montantCumul, moisImpayes } = row.original;
+        const isSending = sendingEmails.has(office.id);
+        const isSent = sentEmails.has(office.id);
+
+        return (
+          <Button
+            size="sm"
+            variant="outline"
+            className="flex items-center gap-2 border-red-200 text-red-600 hover:bg-red-50"
+            onClick={() => sendRelance(office, montantCumul, moisImpayes)}
+            disabled={!office.email || isSending}
+            title={!office.email ? 'Aucun email enregistré' : `Envoyer à ${office.email}`}
+          >
+            {isSending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : isSent ? (
+              <CheckCircle2 className="w-4 h-4 text-green-600" />
+            ) : (
+              <Mail className="w-4 h-4" />
+            )}
+            {isSending ? 'Envoi...' : isSent ? 'Envoyé' : 'Relancer'}
+          </Button>
+        );
+      },
+    },
+  ], [sendingEmails, sentEmails]);
+
+  if (loading) {
+    return <p className="text-slate-500 py-6 text-center">Chargement...</p>;
+  }
+
+  if (unpaidOffices.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+        <AlertCircle className="w-10 h-10 mb-3 text-green-400" />
+        <p className="text-lg font-medium text-slate-600">Aucun impayé</p>
+        <p className="text-sm text-slate-400 mt-1">Tous les bureaux sont à jour 🎉</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
         <Button
           onClick={sendAllRelances}
-          className="bg-red-600 hover:bg-red-700"
+          className="bg-red-600 hover:bg-red-700 text-white"
           disabled={unpaidOffices.filter(u => u.office.email).length === 0}
         >
           <Mail className="w-4 h-4 mr-2" />
@@ -165,75 +249,12 @@ export function RecouvrementTable({ unpaidOffices, loading }: RecouvrementTableP
         </Button>
       </div>
 
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-red-50">
-              <TableHead className="text-red-700 font-semibold">Bureau</TableHead>
-              <TableHead className="text-red-700 font-semibold">Locataire</TableHead>
-              <TableHead className="text-red-700 font-semibold">Type</TableHead>
-              <TableHead className="text-red-700 font-semibold">Mois impayés</TableHead>
-              <TableHead className="text-red-700 font-semibold">Mois en cours</TableHead>
-              <TableHead className="text-red-700 font-semibold">Cumul total</TableHead>
-              <TableHead className="text-red-700 font-semibold">Statut</TableHead>
-              <TableHead className="text-red-700 font-semibold">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {unpaidOffices.map(({ office, moisImpayes, montantMoisEnCours, montantCumul }) => {
-              const isSending = sendingEmails.has(office.id);
-              const isSent = sentEmails.has(office.id);
-
-              return (
-                <TableRow key={office.id} className="hover:bg-red-50/50 transition-colors">
-                  <TableCell className="font-semibold text-slate-800">
-                    #{office.number}
-                  </TableCell>
-                  <TableCell className="text-slate-700">
-                    {office.name || '—'}
-                  </TableCell>
-                  <TableCell className="text-slate-600">
-                    {office.type === 'individual' ? 'Individuel' : office.type === 'open-space' ? 'Open Space' : '—'}
-                  </TableCell>
-                  <TableCell className="text-slate-700 font-medium">
-                    {moisImpayes} mois
-                  </TableCell>
-                  <TableCell className="font-bold text-orange-600">
-                    {formatCurrency(montantMoisEnCours)}
-                  </TableCell>
-                  <TableCell className="font-bold text-red-600">
-                    {formatCurrency(montantCumul)}
-                  </TableCell>
-                  <TableCell>
-                    <Badge className="bg-red-100 text-red-700 border border-red-200">
-                      Impayé
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="flex items-center gap-2 border-red-200 text-red-600 hover:bg-red-50"
-                      onClick={() => sendRelance(office, montantCumul, moisImpayes)}
-                      disabled={!office.email || isSending}
-                      title={!office.email ? 'Aucun email enregistré' : `Envoyer à ${office.email}`}
-                    >
-                      {isSending ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : isSent ? (
-                        <CheckCircle2 className="w-4 h-4 text-green-600" />
-                      ) : (
-                        <Mail className="w-4 h-4" />
-                      )}
-                      {isSending ? 'Envoi...' : isSent ? 'Envoyé' : 'Relancer'}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable
+        columns={columns}
+        data={unpaidOffices}
+        searchKey="officeNumber"
+        searchPlaceholder="Rechercher par N° Bureau..."
+      />
     </div>
   );
 }

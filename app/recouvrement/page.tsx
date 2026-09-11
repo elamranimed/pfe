@@ -115,8 +115,8 @@ export default function RecouvrementPage() {
     <MainLayout>
       <div className="space-y-8">
         <div>
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Recouvrement</h1>
-          <p className="text-slate-600 capitalize">
+          <h1 className="text-4xl font-bold text-foreground mb-2">Recouvrement</h1>
+          <p className="text-muted-foreground capitalize">
             Bureaux impayés — {currentMonthLabel}
           </p>
         </div>

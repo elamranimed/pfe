@@ -1,20 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { useState, useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2, Eye, Edit2 } from 'lucide-react';
 import { Payment, Office } from '@/lib/types';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { PaymentModal } from './payment-modal';
+import { DataTable } from '@/components/ui/data-table';
+import { ColumnDef } from '@tanstack/react-table';
 
 type PaymentPayload = {
   id?: string;
@@ -31,7 +25,7 @@ interface PaymentsTableProps {
   onAddPayment?: (payload: PaymentPayload) => Promise<void>;
   onUpdatePayment?: (payload: PaymentPayload) => Promise<void>;
   onDeletePayment?: (id: string) => Promise<void>;
-  userRole: 'admin' | 'responsable'; // 👈 ajout
+  userRole: 'admin' | 'responsable';
 }
 
 export function PaymentsTable({
@@ -55,13 +49,14 @@ export function PaymentsTable({
       'meeting-room': { label: 'Salle réunion', variant: 'outline' },
       centre: { label: 'Centre', variant: 'secondary' },
     };
-    return types[type || ''] || { label: type || '—', variant: 'default' };
+    const t = types[type || ''] || { label: type || '—', variant: 'default' };
+    return <Badge variant={t.variant}>{t.label}</Badge>;
   };
 
   const getEtatBadge = (etat?: string) => {
-    if (etat === 'paye') return <Badge className="bg-green-100 text-green-700">Payé</Badge>;
-    if (etat === 'impaye') return <Badge className="bg-red-100 text-red-700">Impayé</Badge>;
-    return <Badge className="bg-orange-100 text-orange-700">En cours</Badge>;
+    if (etat === 'paye') return <Badge variant="success">Payé</Badge>;
+    if (etat === 'impaye') return <Badge variant="destructive">Impayé</Badge>;
+    return <Badge variant="warning">En cours</Badge>;
   };
 
   const openAdd = () => {
@@ -118,9 +113,89 @@ export function PaymentsTable({
     await onDeletePayment(p.id);
   };
 
+  const columns: ColumnDef<Payment>[] = useMemo(() => [
+    {
+      accessorKey: 'date',
+      header: 'Date',
+      cell: ({ row }) => formatDate(row.original.date),
+    },
+    {
+      accessorKey: 'officeNumber',
+      header: 'Bureau N°',
+      cell: ({ row }) => (
+        <span className="font-semibold text-primary">
+          {row.original.officeNumber ? `B${row.original.officeNumber}` : '—'}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'tenantName',
+      header: 'Locataire',
+      cell: ({ row }) => row.original.tenantName || '—',
+    },
+    {
+      accessorKey: 'type',
+      header: 'Type',
+      cell: ({ row }) => getPaymentTypeBadge(row.original.type),
+    },
+    {
+      accessorKey: 'amount',
+      header: 'Montant',
+      cell: ({ row }) => (
+        <span className="font-medium text-foreground">
+          {formatCurrency(row.original.amount)}
+        </span>
+      ),
+    },
+    {
+      accessorKey: 'etat',
+      header: 'État',
+      cell: ({ row }) => getEtatBadge(row.original.etat),
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => {
+        const p = row.original;
+        return (
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => openView(p)}
+              title="Afficher"
+            >
+              <Eye className="w-4 h-4" />
+            </Button>
+            {userRole === 'admin' && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => openEdit(p)}
+                  title="Modifier"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDelete(p)}
+                  title="Supprimer"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </>
+            )}
+          </div>
+        );
+      },
+    },
+  ], [userRole, offices]);
+
   return (
     <div>
-      {/* Bouton Enregistrer Paiement visible uniquement pour admin */}
       {userRole === 'admin' && (
         <div className="mb-4">
           <Button onClick={openAdd} className="gap-2">
@@ -130,114 +205,22 @@ export function PaymentsTable({
         </div>
       )}
 
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Bureau N°</TableHead>
-              <TableHead>Locataire</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Montant</TableHead>
-              <TableHead>État</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {payments.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center text-slate-500 py-8">
-                  Aucun paiement pour cette période
-                </TableCell>
-              </TableRow>
-            ) : (
-              payments.map((payment) => {
-                const office =
-                  offices.find(
-                    (o) =>
-                      o.id === payment.officeId ||
-                      o.number === payment.officeNumber
-                  );
-
-                const bureauNumber = office?.number ?? payment.officeNumber;
-                const tenantDisplay =
-                  office?.name ||
-                  office?.tenant?.companyName ||
-                  payment.tenantName ||
-                  '—';
-
-                const typeSource = office?.type || payment.type;
-                const typeBadge = getPaymentTypeBadge(typeSource);
-
-                return (
-                  <TableRow key={payment.id || payment.reference || payment.date + payment.amount}>
-                    <TableCell>{formatDate(payment.date)}</TableCell>
-                    <TableCell className="font-medium">{bureauNumber}</TableCell>
-                    <TableCell>{tenantDisplay}</TableCell>
-                    <TableCell>
-                      <Badge variant={typeBadge.variant as any}>
-                        {typeBadge.label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="font-semibold">
-                      {formatCurrency(payment.amount)}
-                    </TableCell>
-                    <TableCell>{getEtatBadge(payment.etat || payment.status)}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        {/* Voir toujours visible */}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          title="Voir"
-                          className="text-slate-600"
-                          onClick={() => openView(payment)}
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-
-                        {/* Modifier et Supprimer visibles uniquement pour admin */}
-                        {userRole === 'admin' && (
-                          <>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              title="Modifier"
-                              className="text-slate-600"
-                              onClick={() => openEdit(payment)}
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              title="Supprimer"
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                              onClick={() => handleDelete(payment)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable
+        columns={columns}
+        data={payments}
+        searchKey="officeNumber"
+        searchPlaceholder="Rechercher par N° Bureau..."
+      />
 
       <PaymentModal
         open={showModal}
         onOpenChange={setShowModal}
-        offices={offices}
-        loadingOffices={loadingOffices}
-        submitting={submitting}
         mode={modalMode}
         payment={editingPayment}
+        offices={offices}
+        loadingOffices={loadingOffices}
         onSave={handleSave}
+        submitting={submitting}
       />
     </div>
   );

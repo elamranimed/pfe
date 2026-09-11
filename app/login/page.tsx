@@ -3,6 +3,11 @@
 import { useState, FormEvent } from 'react'
 import { useRouter } from 'next/navigation'
 
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+
 export default function LoginPage() {
   const router = useRouter()
   const [login, setLogin] = useState('')
@@ -30,7 +35,6 @@ export default function LoginPage() {
         return
       }
 
-      
       router.push('/')
     } catch (err) {
       setError('Erreur de connexion au serveur')
@@ -39,75 +43,56 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Connexion Utilisateur
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Entrez vos identifiants (Admin/Responsable) pour accéder au système 
-          </p>
-        </div>
-
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm space-y-4">
-            <div>
-              <label htmlFor="login" className="block text-sm font-medium text-gray-700 mb-1">
-                Login
-              </label>
-              <input
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl font-bold">Connexion Utilisateur</CardTitle>
+          <CardDescription>
+            Entrez vos identifiants (Admin/Responsable) pour accéder au système
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="login">Login</Label>
+              <Input
                 id="login"
                 name="login"
                 type="text"
                 required
                 value={login}
                 onChange={(e) => setLogin(e.target.value)}
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Votre login"
                 disabled={loading}
               />
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Mot de passe
-              </label>
-              <input
+            <div className="space-y-2">
+              <Label htmlFor="password">Mot de passe</Label>
+              <Input
                 id="password"
                 name="password"
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Votre mot de passe"
                 disabled={loading}
               />
             </div>
-          </div>
 
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="flex">
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-red-800">{error}</p>
-                </div>
+            {error && (
+              <div className="text-sm font-medium text-destructive">
+                {error}
               </div>
-            </div>
-          )}
+            )}
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <Button type="submit" className="w-full mt-4" disabled={loading}>
               {loading ? 'Connexion...' : 'Se connecter'}
-            </button>
-          </div>
-        </form>
-      </div>
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   )
-}
+}

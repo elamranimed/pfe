@@ -1,14 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { useState, useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Plus, Edit2, Eye, Trash2 } from 'lucide-react';
@@ -26,13 +18,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { DataTable } from '@/components/ui/data-table';
+import { ColumnDef } from '@tanstack/react-table';
 
 interface OfficesTableProps {
   offices: Office[];
   onAddOffice: (office: Office) => void;
   onUpdateOffice: (office: Office) => void;
   onDeleteOffice?: (officeId: string) => void;
-  userRole: 'admin' | 'responsable'; // 👈 ajout
+  userRole: 'admin' | 'responsable';
 }
 
 function cleanString(value?: string | null): string | null {
@@ -55,13 +49,13 @@ export function OfficesTable({
   const [deletingOffice, setDeletingOffice] = useState<Office | null>(null);
 
   const getStatusBadge = (status: string) => {
-    const statuses: Record<string, { label: string; className: string }> = {
-      available: { label: 'Disponible', className: 'bg-green-100 text-green-700' },
-      occupied: { label: 'Occupé', className: 'bg-blue-100 text-blue-700' },
-      maintenance: { label: 'Maintenance', className: 'bg-yellow-100 text-yellow-700' },
+    const statuses: Record<string, { label: string; variant: any }> = {
+      available: { label: 'Disponible', variant: 'success' },
+      occupied: { label: 'Occupé', variant: 'default' },
+      maintenance: { label: 'Maintenance', variant: 'warning' },
     };
-    const s = statuses[status] || { label: status, className: 'bg-slate-100 text-slate-700' };
-    return <Badge className={s.className}>{s.label}</Badge>;
+    const s = statuses[status] || { label: status, variant: 'secondary' };
+    return <Badge variant={s.variant}>{s.label}</Badge>;
   };
 
   const getTypeBadge = (type: string) => {
@@ -103,9 +97,105 @@ export function OfficesTable({
     return tenantMail && String(tenantMail).trim() !== '' ? String(tenantMail).trim() : '';
   };
 
+  const columns: ColumnDef<Office>[] = useMemo(() => [
+    {
+      accessorKey: 'number',
+      header: 'N° Bureau',
+      cell: ({ row }) => <span className="font-bold">{row.original.number}</span>,
+    },
+    {
+      id: 'locataire',
+      header: 'Locataire (Nom du Bureau)',
+      cell: ({ row }) => {
+        const displayName =
+          cleanString(row.original.tenant?.companyName) ||
+          cleanString(row.original.name) ||
+          null;
+        return displayName ?? <span className="italic">—</span>;
+      },
+    },
+    {
+      accessorKey: 'floor',
+      header: 'Étage',
+    },
+    {
+      accessorKey: 'type',
+      header: 'Type',
+      cell: ({ row }) => getTypeBadge(row.original.type),
+    },
+    {
+      id: 'telephone',
+      header: 'Téléphone',
+      cell: ({ row }) => {
+        const phone = resolvePhone(row.original);
+        return phone ? <a href={`tel:${phone}`}>{phone}</a> : '—';
+      },
+    },
+    {
+      id: 'email',
+      header: 'Email',
+      cell: ({ row }) => {
+        const email = resolveEmail(row.original);
+        return email ? <a href={`mailto:${email}`}>{email}</a> : '—';
+      },
+    },
+    {
+      accessorKey: 'cotisation',
+      header: 'Cotisation',
+      cell: ({ row }) => formatCurrency(row.original.cotisation),
+    },
+    {
+      accessorKey: 'status',
+      header: 'Statut',
+      cell: ({ row }) => getStatusBadge(row.original.status),
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => {
+        const office = row.original;
+        return (
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedOffice(office)}
+              title="Afficher"
+            >
+              <Eye className="w-4 h-4" />
+            </Button>
+            {userRole === 'admin' && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setEditingOffice(office);
+                    setShowAddModal(true);
+                  }}
+                  title="Modifier"
+                >
+                  <Edit2 className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setDeletingOffice(office)}
+                  title="Supprimer"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </>
+            )}
+          </div>
+        );
+      },
+    },
+  ], [userRole]);
+
   return (
     <div>
-      {/* Bouton Ajouter Bureau visible uniquement pour admin */}
       {userRole === 'admin' && (
         <div className="mb-4">
           <Button
@@ -121,88 +211,12 @@ export function OfficesTable({
         </div>
       )}
 
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>N° Bureau</TableHead>
-              <TableHead>Locataire (Nom du Bureau)</TableHead>
-              <TableHead>Étage</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Téléphone</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Cotisation</TableHead>
-              <TableHead>Statut</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {offices.map((office) => {
-              const phone = resolvePhone(office);
-              const email = resolveEmail(office);
-              const displayName =
-                cleanString(office.tenant?.companyName) ||
-                cleanString(office.name) ||
-                null;
-
-              return (
-                <TableRow key={office.id}>
-                  <TableCell className="font-bold">{office.number}</TableCell>
-                  <TableCell>{displayName ?? <span className="italic">—</span>}</TableCell>
-                  <TableCell>{office.floor}</TableCell>
-                  <TableCell>{getTypeBadge(office.type)}</TableCell>
-                  <TableCell>{phone ? <a href={`tel:${phone}`}>{phone}</a> : '—'}</TableCell>
-                  <TableCell>{email ? <a href={`mailto:${email}`}>{email}</a> : '—'}</TableCell>
-                  <TableCell>{formatCurrency(office.cotisation)}</TableCell>
-                  <TableCell>{getStatusBadge(office.status)}</TableCell>
-
-                  <TableCell>
-                    <div className="flex gap-2">
-                      {/* Afficher toujours */}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedOffice(office)}
-                        title="Afficher"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-
-                      {/* Modifier et Supprimer visibles uniquement pour admin */}
-                      {userRole === 'admin' && (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setEditingOffice(office);
-                              setShowAddModal(true);
-                            }}
-                            title="Modifier"
-                          >
-                            <Edit2 className="w-4 h-4" />
-                          </Button>
-
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setDeletingOffice(office)}
-                            title="Supprimer"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable
+        columns={columns}
+        data={offices}
+        searchKey="number"
+        searchPlaceholder="Rechercher par N° Bureau..."
+      />
 
       <OfficeModal
         open={showAddModal}
