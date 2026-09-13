@@ -8,10 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Download } from 'lucide-react';
+import { Plus, Download, Pencil, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { exportToXLSX } from '@/lib/utils';
+import { getUserRole } from '@/lib/auth';
 
 export default function DemandesPage() {
   const [demandes, setDemandes] = useState<any[]>([]);
@@ -19,7 +20,14 @@ export default function DemandesPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newDemande, setNewDemande] = useState({ objet: 'reclamation', created_by: '' });
+  const [editingDemandeId, setEditingDemandeId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [role, setRole] = useState<'admin' | 'responsable' | null>(null);
+
+  useEffect(() => {
+    setRole(getUserRole());
+    fetchDemandes();
+  }, []);
 
   const fetchDemandes = () => {
     setLoading(true);
@@ -45,28 +53,62 @@ export default function DemandesPage() {
     exportToXLSX(dataToExport, 'Demandes');
   };
 
-  useEffect(() => {
-    fetchDemandes();
-  }, []);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const res = await fetch('/api/demandes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newDemande)
-      });
-      if (res.ok) {
-        setIsModalOpen(false);
-        setNewDemande({ objet: 'reclamation', created_by: '' });
-        fetchDemandes();
+      if (editingDemandeId) {
+        const res = await fetch('/api/demandes', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: editingDemandeId, data: newDemande })
+        });
+        if (res.ok) {
+          setIsModalOpen(false);
+          setNewDemande({ objet: 'reclamation', created_by: '' });
+          setEditingDemandeId(null);
+          fetchDemandes();
+        }
+      } else {
+        const res = await fetch('/api/demandes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newDemande)
+        });
+        if (res.ok) {
+          setIsModalOpen(false);
+          setNewDemande({ objet: 'reclamation', created_by: '' });
+          fetchDemandes();
+        }
       }
     } catch (err) {
       console.error(err);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleEditClick = (d: any) => {
+    setEditingDemandeId(d.id_demande);
+    setNewDemande({ objet: d.objet, created_by: d.created_by });
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm('Voulez-vous vraiment supprimer cette demande ?')) return;
+    try {
+      const res = await fetch('/api/demandes', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+      if (res.ok) {
+        fetchDemandes();
+      } else {
+        console.error('Erreur lors de la suppression');
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -99,7 +141,7 @@ export default function DemandesPage() {
                 <DialogContent>
                   <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                      <DialogTitle>Ajouter une demande</DialogTitle>
+                      <DialogTitle>{editingDemandeId ? 'Modifier la demande' : 'Ajouter une demande'}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                       <div className="space-y-2">
@@ -129,9 +171,13 @@ export default function DemandesPage() {
                       </div>
                     </div>
                     <DialogFooter>
-                      <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>Annuler</Button>
+                      <Button type="button" variant="outline" onClick={() => {
+                        setIsModalOpen(false);
+                        setEditingDemandeId(null);
+                        setNewDemande({ objet: 'reclamation', created_by: '' });
+                      }}>Annuler</Button>
                       <Button type="submit" disabled={submitting}>
-                        {submitting ? 'Création...' : 'Créer'}
+                        {submitting ? 'Enregistrement...' : (editingDemandeId ? 'Modifier' : 'Créer')}
                       </Button>
                     </DialogFooter>
                   </form>
@@ -151,6 +197,7 @@ export default function DemandesPage() {
                       <th className="px-6 py-4 font-semibold">Type</th>
                       <th className="px-6 py-4 font-semibold">Date</th>
                       <th className="px-6 py-4 font-semibold">Par</th>
+                      <th className="px-6 py-4 font-semibold text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -166,11 +213,23 @@ export default function DemandesPage() {
                           {d.created_at ? format(new Date(d.created_at), 'dd MMM yyyy à HH:mm', { locale: fr }) : '-'}
                         </td>
                         <td className="px-6 py-4">{d.created_by}</td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button variant="ghost" size="icon" onClick={() => handleEditClick(d)} className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            {role === 'admin' && (
+                              <Button variant="ghost" size="icon" onClick={() => handleDelete(d.id_demande)} className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </td>
                       </tr>
                     ))}
                     {demandes.length === 0 && (
                       <tr>
-                        <td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">
+                        <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
                           Aucune demande trouvée.
                         </td>
                       </tr>
