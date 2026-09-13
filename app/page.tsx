@@ -43,6 +43,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { KpiCard } from '@/components/kpi-card';
+import { getUserRole } from '@/lib/auth';
 
 /* ─── Data mappers (unchanged) ─── */
 const mapBureauToOffice = (b: any): Office => ({
@@ -118,9 +119,15 @@ export default function DashboardPage() {
   const [offices, setOffices] = useState<Office[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [role, setRole] = useState<'admin' | 'responsable' | null>(null);
   const [selectedYear, setSelectedYear] = useState(String(new Date().getFullYear()));
 
-  const now = new Date();
+  const now = useMemo(() => new Date(), []);
+  
+  useEffect(() => {
+    const resolvedRole = getUserRole();
+    setRole(resolvedRole as 'admin' | 'responsable');
+  }, []);
 
   const availableYears = useMemo(() => {
     const years = [];
@@ -134,14 +141,14 @@ export default function DashboardPage() {
     let mounted = true;
     const load = async () => {
       try {
-        const resB = await fetch('/api/bureaux', { credentials: 'include' });
+        const resB = await fetch('/api/bureaux', { credentials: 'include', cache: 'no-store' });
         if (!resB.ok) throw new Error('Erreur chargement bureaux');
         const bureaux = await resB.json();
         const mappedB = bureaux.map(mapBureauToOffice);
         const bureauMap: Record<string, Office> = {};
         mappedB.forEach((b: Office) => { bureauMap[b.id] = b; });
 
-        const resP = await fetch('/api/paiements', { credentials: 'include' });
+        const resP = await fetch('/api/paiements', { credentials: 'include', cache: 'no-store' });
         if (!resP.ok) throw new Error('Erreur chargement paiements');
         const paiements = await resP.json();
 
@@ -226,15 +233,19 @@ export default function DashboardPage() {
   /* ─── Pie chart data (payé vs non payé for the year) ─── */
   const pieData = useMemo(() => {
     return [
-      { name: 'Payé', value: kpis.collected },
-      { name: 'Non payé', value: kpis.unpaid },
+      { name: 'paye', label: 'Payé', value: kpis.collected, fill: 'var(--color-paye)' },
+      { name: 'non_paye', label: 'Non payé', value: kpis.unpaid, fill: 'var(--color-non_paye)' },
     ];
   }, [kpis]);
 
   /* ─── Recent payments ─── */
   const recentPayments = useMemo(() => {
     return [...payments]
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .sort((a, b) => {
+        const idA = Number(a.id.replace('PAY-', '')) || 0;
+        const idB = Number(b.id.replace('PAY-', '')) || 0;
+        return idB - idA;
+      })
       .slice(0, 5);
   }, [payments]);
 
@@ -251,25 +262,16 @@ export default function DashboardPage() {
   } satisfies ChartConfig;
 
   const pieChartConfig = {
-    Payé: {
+    paye: {
       label: 'Payé',
-      color: 'hsl(var(--primary))',
+      color: '#10b981',
     },
-    NonPaye: {
+    non_paye: {
       label: 'Non payé',
-      color: 'hsl(var(--destructive))',
+      color: '#ef4444',
     },
   } satisfies ChartConfig;
 
-  /* ─── Logout ─── */
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-      window.location.href = '/login';
-    } catch (err) {
-      console.error('Erreur de déconnexion', err);
-    }
-  };
 
   return (
     <MainLayout>
@@ -278,19 +280,13 @@ export default function DashboardPage() {
         {/* ────── Header ────── */}
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-foreground mb-1">Tableau de Bord</h1>
+            <h1 className="text-4xl font-bold text-foreground mb-1">
+              Bonjour {role ? (role === 'admin' ? 'Admin' : 'Responsable') : ''}
+            </h1>
             <p className="text-muted-foreground">
               {now.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </p>
           </div>
-          <Button
-            onClick={handleLogout}
-            variant="destructive"
-            className="flex items-center gap-2"
-          >
-            <LogOut className="w-4 h-4" />
-            Déconnexion
-          </Button>
         </div>
 
         {error && (
@@ -406,7 +402,7 @@ export default function DashboardPage() {
                       stroke="none"
                     >
                       {pieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.name === 'Payé' ? 'var(--color-Payé)' : 'var(--color-NonPaye)'} />
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
                       ))}
                     </Pie>
                     <ShadcnChartTooltip content={<ChartTooltipContent />} />

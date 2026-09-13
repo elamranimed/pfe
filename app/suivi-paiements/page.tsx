@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { MainLayout } from '@/components/main-layout';
 import { Payment, Office } from '@/lib/types';
 import * as XLSX from 'xlsx';
@@ -12,9 +12,28 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { Download, Plus } from 'lucide-react';
 import { DataTable } from '@/components/ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
+import { useToast } from '@/hooks/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
 
 /* ─── Types & Constants ─── */
 type PaymentStatus = 'paye' | 'non_paye';
@@ -22,6 +41,7 @@ type PaymentStatus = 'paye' | 'non_paye';
 interface MonthPayment {
   status: PaymentStatus;
   amount: number;
+  paymentObj?: Payment;
 }
 
 interface BureauRow {
@@ -40,9 +60,22 @@ const statusConfig: Record<PaymentStatus, { label: string; bg: string; text: str
 };
 
 /* ─── Heat-map Cell (compact colored square + tooltip) ─── */
-function HeatCell({ payment, monthLabel }: { payment: MonthPayment; monthLabel: string }) {
+function HeatCell({ payment, monthLabel, onPay, onEdit }: { payment: MonthPayment; monthLabel: string; onPay: () => void; onEdit: () => void }) {
   const [showTip, setShowTip] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const isPaid = payment.status === 'paye';
+
+  const handleClick = async () => {
+    if (isProcessing) return;
+    if (isPaid) {
+      onEdit();
+      return;
+    }
+    setIsProcessing(true);
+    await onPay();
+    setIsProcessing(false);
+  };
+
   return (
     <div className="flex justify-center px-0.5 py-1">
       <div
@@ -51,7 +84,8 @@ function HeatCell({ payment, monthLabel }: { payment: MonthPayment; monthLabel: 
         onMouseLeave={() => setShowTip(false)}
       >
         <div
-          className="w-8 h-8 rounded-lg cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg flex items-center justify-center"
+          onClick={handleClick}
+          className={`w-8 h-8 rounded-lg transition-all duration-200 flex items-center justify-center cursor-pointer hover:scale-110 hover:shadow-lg`}
           style={{
             background: isPaid
               ? 'linear-gradient(135deg, #34d399 0%, #10b981 100%)'
@@ -59,9 +93,15 @@ function HeatCell({ payment, monthLabel }: { payment: MonthPayment; monthLabel: 
             boxShadow: isPaid
               ? '0 2px 8px rgba(52,211,153,0.3)'
               : '0 2px 8px rgba(248,113,113,0.25)',
+            opacity: isProcessing ? 0.5 : 1,
           }}
         >
-          {isPaid ? (
+          {isProcessing ? (
+             <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+             </svg>
+          ) : isPaid ? (
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="20 6 9 17 4 12" />
             </svg>
@@ -85,7 +125,7 @@ function HeatCell({ payment, monthLabel }: { payment: MonthPayment; monthLabel: 
                 style={{ background: isPaid ? '#34d399' : '#f87171' }}
               />
               <span className="text-xs font-semibold" style={{ color: isPaid ? '#34d399' : '#f87171' }}>
-                {isPaid ? 'Payé' : 'Non payé'}
+                {isPaid ? 'Payé (Clic pour modifier)' : 'Non payé (Clic pour payer)'}
               </span>
             </div>
             <p className="text-xs font-bold text-white mt-0.5">
@@ -147,6 +187,10 @@ export default function SuiviPaiementsPage() {
   const [statusFilter, setStatusFilter] = useState<'tous' | PaymentStatus>('tous');
   const [bureauFilter, setBureauFilter] = useState('tous');
   const [selectedYear, setSelectedYear] = useState(String(new Date().getFullYear()));
+  const [pendingQuickPay, setPendingQuickPay] = useState<{officeId: string, monthIndex: number, existingPayment?: Payment} | null>(null);
+  const [pendingEditPayment, setPendingEditPayment] = useState<Payment | null>(null);
+  
+  const { toast } = useToast();
 
   const availableYears = useMemo(() => {
     const years = [];
@@ -156,33 +200,208 @@ export default function SuiviPaiementsPage() {
     return years;
   }, []);
 
-  useEffect(() => {
-    let mounted = true;
-    const load = async () => {
-      try {
-        const resB = await fetch('/api/bureaux', { credentials: 'include' });
-        if (!resB.ok) throw new Error('Erreur chargement bureaux');
-        const bureaux = await resB.json();
-        const mappedB = bureaux.map(mapBureauToOffice);
-        const bureauMap: Record<string, Office> = {};
-        mappedB.forEach((b: Office) => { bureauMap[b.id] = b; });
+  const fetchData = useCallback(async () => {
+    try {
+      const resB = await fetch('/api/bureaux', { credentials: 'include', cache: 'no-store' });
+      if (!resB.ok) throw new Error('Erreur chargement bureaux');
+      const bureaux = await resB.json();
+      const mappedB = bureaux.map(mapBureauToOffice);
+      const bureauMap: Record<string, Office> = {};
+      mappedB.forEach((b: Office) => { bureauMap[b.id] = b; });
 
-        const resP = await fetch('/api/paiements', { credentials: 'include' });
-        if (!resP.ok) throw new Error('Erreur chargement paiements');
-        const paiements = await resP.json();
+      const resP = await fetch('/api/paiements', { credentials: 'include', cache: 'no-store' });
+      if (!resP.ok) throw new Error('Erreur chargement paiements');
+      const paiements = await resP.json();
 
-        if (!mounted) return;
-        setOffices(mappedB);
-        setPayments(paiements.map((p: any) => mapPaiementDto(p, bureauMap)));
-      } catch (err: any) {
-        if (mounted) setError(err.message);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
-    load();
-    return () => { mounted = false; };
+      setOffices(mappedB);
+      setPayments(paiements.map((p: any) => mapPaiementDto(p, bureauMap)));
+    } catch (err: any) {
+      setError(err.message);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchData().finally(() => setLoading(false));
+  }, [fetchData]);
+
+  const handleQuickPay = async (officeId: string, monthIndex: number, existingPayment?: Payment) => {
+    const office = offices.find(o => o.id === officeId);
+    if (!office) return;
+    
+    try {
+      if (existingPayment) {
+        const res = await fetch('/api/paiements', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: Number(existingPayment.id),
+            data: {
+              montant: existingPayment.amount,
+              date: new Date(existingPayment.date).toISOString(),
+              etat: 'paye'
+            }
+          })
+        });
+
+        if (!res.ok) throw new Error('Erreur API lors de la mise à jour du paiement');
+        
+        const updatedRaw = await res.json();
+        const bureauMap: Record<string, Office> = {};
+        offices.forEach((b: Office) => { bureauMap[b.id] = b; });
+        const updatedPayment = mapPaiementDto(updatedRaw, bureauMap);
+
+        setPayments(prev => prev.map(p => p.id === updatedPayment.id ? updatedPayment : p));
+      } else {
+        // Use a fixed time at noon UTC to safely avoid any timezone shift issues
+        const safeMonth = String(monthIndex + 1).padStart(2, '0');
+        const date = `${selectedYear}-${safeMonth}-01T12:00:00.000Z`;
+
+        const res = await fetch('/api/paiements', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id_bureau: Number(officeId),
+            montant: office.cotisation,
+            date,
+            etat: 'paye'
+          })
+        });
+
+        if (!res.ok) throw new Error('Erreur API lors de la création du paiement');
+        
+        const newPaymentRaw = await res.json();
+        const bureauMap: Record<string, Office> = {};
+        offices.forEach((b: Office) => { bureauMap[b.id] = b; });
+        const newPayment = mapPaiementDto(newPaymentRaw, bureauMap);
+
+        setPayments(prev => [...prev, newPayment]);
+      }
+
+      setPendingQuickPay(null);
+      
+      toast({
+        title: "Paiement enregistré",
+        description: `Le paiement de ${office.name || 'Bureau ' + office.number} pour ${MONTHS_FULL[monthIndex]} a été enregistré avec succès.`,
+      });
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: err.message || "Erreur lors de l'enregistrement du paiement.",
+      });
+    }
+  };
+
+  const handleManualAddPayment = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const officeId = formData.get('bureauId') as string;
+    const amount = Number(formData.get('amount'));
+    const date = formData.get('date') as string;
+    const etat = formData.get('etat') as string;
+
+    if (!officeId || !amount || !date || !etat) return;
+
+    try {
+      const res = await fetch('/api/paiements', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id_bureau: Number(officeId),
+          montant: amount,
+          date: new Date(date).toISOString(),
+          etat
+        })
+      });
+
+      if (!res.ok) throw new Error('Erreur lors de l\'ajout du paiement');
+      
+      const newPaymentRaw = await res.json();
+      const bureauMap: Record<string, Office> = {};
+      offices.forEach((b: Office) => { bureauMap[b.id] = b; });
+      const newPayment = mapPaiementDto(newPaymentRaw, bureauMap);
+
+      setPayments(prev => [...prev, newPayment]);
+      
+      toast({
+        title: "Succès",
+        description: "Le paiement a été enregistré manuellement.",
+      });
+      
+      // Reset form visually or close dialog
+      const form = e.target as HTMLFormElement;
+      form.reset();
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: err.message,
+      });
+    }
+  };
+
+  const handleUpdatePayment = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!pendingEditPayment) return;
+
+    const formData = new FormData(e.currentTarget);
+    const amount = Number(formData.get('amount'));
+    const date = formData.get('date') as string;
+    const etat = formData.get('etat') as string;
+
+    try {
+      // The pendingEditPayment.id might contain the 'PAY-' prefix depending on the mapper
+      // Wait, mapPaiementDto does: `id: p.id_paiement ? String(p.id_paiement) : crypto.randomUUID()`
+      // No, `p.id_paiement` is the exact numeric ID stringified. Wait, the mapping says:
+      // `id: p.id_paiement ? String(p.id_paiement) : crypto.randomUUID()`
+      // So id is exactly the numeric string! It is safe to parse.
+      const res = await fetch('/api/paiements', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: Number(pendingEditPayment.id),
+          data: {
+            montant: amount,
+            date: new Date(date).toISOString(),
+            etat
+          }
+        })
+      });
+
+      if (!res.ok) throw new Error('Erreur lors de la modification. Non autorisé?');
+
+      const updatedRaw = await res.json();
+      const bureauMap: Record<string, Office> = {};
+      offices.forEach((b: Office) => { bureauMap[b.id] = b; });
+      const updatedPayment = mapPaiementDto(updatedRaw, bureauMap);
+
+      setPayments(prev => prev.map(p => p.id === updatedPayment.id ? updatedPayment : p));
+      setPendingEditPayment(null);
+      toast({ title: "Paiement modifié avec succès" });
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: "Erreur", description: err.message });
+    }
+  };
+
+  const handleDeletePayment = async () => {
+    if (!pendingEditPayment) return;
+
+    try {
+      const res = await fetch('/api/paiements', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: Number(pendingEditPayment.id) })
+      });
+
+      if (!res.ok) throw new Error('Erreur lors de la suppression. Non autorisé?');
+
+      setPayments(prev => prev.filter(p => p.id !== pendingEditPayment.id));
+      setPendingEditPayment(null);
+      toast({ title: "Paiement supprimé" });
+    } catch (err: any) {
+      toast({ variant: 'destructive', title: "Erreur", description: err.message });
+    }
+  };
 
   const year = Number(selectedYear);
 
@@ -197,7 +416,7 @@ export default function SuiviPaiementsPage() {
           return p.officeId === office.id && d.getFullYear() === year && d.getMonth() === monthIndex;
         });
         return match
-          ? { status: match.etat === 'paye' ? 'paye' : 'non_paye' as PaymentStatus, amount: match.amount }
+          ? { status: match.etat === 'paye' ? 'paye' : 'non_paye' as PaymentStatus, amount: match.amount, paymentObj: match }
           : { status: 'non_paye' as PaymentStatus, amount: office.cotisation };
       }),
     })),
@@ -235,44 +454,22 @@ export default function SuiviPaiementsPage() {
         id: `month_${mi}`,
         header: () => <div className="text-center w-[42px] px-0.5">{m}</div>,
         cell: ({ row }) => (
-          <HeatCell payment={row.original.months[mi]} monthLabel={`${MONTHS_FULL[mi]} ${selectedYear}`} />
+          <HeatCell 
+            payment={row.original.months[mi]} 
+            monthLabel={`${MONTHS_FULL[mi]} ${selectedYear}`} 
+            onPay={() => setPendingQuickPay({ officeId: row.original.id, monthIndex: mi, existingPayment: row.original.months[mi].paymentObj })}
+            onEdit={() => {
+              if (row.original.months[mi].paymentObj) {
+                setPendingEditPayment(row.original.months[mi].paymentObj!);
+              }
+            }}
+          />
         ),
       });
     });
 
-    cols.push({
-      id: 'progression',
-      header: () => <div className="text-center min-w-[110px]">Progression</div>,
-      cell: ({ row }) => {
-        const paidCount = row.original.months.filter(m => m.status === 'paye').length;
-        const paidPct = Math.round((paidCount / 12) * 100);
-        return (
-          <div className="flex items-center gap-2">
-            <div className="flex-1 h-1.5 rounded-full overflow-hidden bg-secondary">
-              <div
-                className="h-full rounded-full transition-all duration-500"
-                style={{
-                  width: `${paidPct}%`,
-                  background: paidPct === 100
-                    ? 'linear-gradient(90deg, #34d399, #10b981)'
-                    : paidPct >= 50
-                      ? 'linear-gradient(90deg, #fbbf24, #f59e0b)'
-                      : 'linear-gradient(90deg, #f87171, #ef4444)',
-                }}
-              />
-            </div>
-            <span className="text-[10px] font-semibold tabular-nums" style={{
-              color: paidPct === 100 ? '#34d399' : paidPct >= 50 ? '#fbbf24' : '#f87171'
-            }}>
-              {paidCount}/12
-            </span>
-          </div>
-        );
-      },
-    });
-
     return cols;
-  }, [selectedYear]);
+  }, [selectedYear, offices, payments]); 
 
   const exportXLSX = () => {
     const headers = ['Bureau', 'Locataire', ...MONTHS];
@@ -333,11 +530,13 @@ export default function SuiviPaiementsPage() {
     ...bureauRows.map(row => ({ value: row.id, label: row.numero })),
   ];
 
+  const defaultDate = new Date().toISOString().split('T')[0];
+
   return (
     <MainLayout>
       <div className="space-y-6">
         <div className="flex flex-col gap-2">
-          <h1 className="text-4xl font-bold text-foreground mb-1">Suivi des Paiements</h1>
+          <h1 className="text-4xl font-bold text-foreground mb-1">Paiements</h1>
           <p className="text-muted-foreground">Consultez et exportez l'historique des paiements par bureau</p>
         </div>
 
@@ -389,22 +588,66 @@ export default function SuiviPaiementsPage() {
                 </Select>
               </div>
             </div>
-            <Button
-              onClick={exportXLSX}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <Download className="w-4 h-4" />
-              Exporter XLSX
-            </Button>
+            
+            <div className="flex items-center gap-3">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="flex items-center gap-2" variant="default">
+                    <Plus className="w-4 h-4" />
+                    Ajouter Paiement
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Ajouter un paiement</DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={handleManualAddPayment} className="space-y-4 mt-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Bureau</label>
+                      <select name="bureauId" required className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
+                        <option value="">Sélectionner un bureau...</option>
+                        {offices.map(o => (
+                          <option key={o.id} value={o.id}>Bureau {o.number} {o.name ? `(${o.name})` : ''}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Montant (MAD)</label>
+                      <Input type="number" name="amount" required placeholder="Ex: 500" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Date</label>
+                      <Input type="date" name="date" required defaultValue={defaultDate} />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">État du paiement</label>
+                      <select name="etat" required defaultValue="paye" className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
+                        <option value="paye">Payé</option>
+                        <option value="non_paye">Non payé</option>
+                      </select>
+                    </div>
+                    <Button type="submit" className="w-full">Enregistrer le paiement</Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+
+              <Button
+                onClick={exportXLSX}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Exporter XLSX
+              </Button>
+            </div>
           </div>
 
           <div className="px-6 py-4 flex items-center justify-between">
             <div>
               <h2 className="text-lg font-bold text-foreground tracking-tight">
-                Suivi des Paiements {selectedYear}
+                Paiements {selectedYear}
               </h2>
-              <p className="text-xs text-muted-foreground mt-1">Survolez une case pour voir les détails du paiement</p>
+              <p className="text-xs text-muted-foreground mt-1">Survolez une case pour voir les détails, ou cliquez sur une case rouge pour enregistrer rapidement un paiement.</p>
             </div>
           </div>
 
@@ -422,6 +665,66 @@ export default function SuiviPaiementsPage() {
           </div>
         </div>
       </div>
+      
+      {/* Confirmation Dialog for Quick Pay */}
+      <AlertDialog open={!!pendingQuickPay} onOpenChange={(open) => !open && setPendingQuickPay(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer le paiement</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir enregistrer ce paiement pour le mois de {pendingQuickPay ? MONTHS_FULL[pendingQuickPay.monthIndex] : ''} ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={() => pendingQuickPay && handleQuickPay(pendingQuickPay.officeId, pendingQuickPay.monthIndex, pendingQuickPay.existingPayment)}>
+              Confirmer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Edit Payment Dialog */}
+      <Dialog open={!!pendingEditPayment} onOpenChange={(open) => !open && setPendingEditPayment(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Détails du paiement</DialogTitle>
+          </DialogHeader>
+          {pendingEditPayment && (
+            <form onSubmit={handleUpdatePayment} className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Référence</label>
+                <Input type="text" disabled defaultValue={pendingEditPayment.reference} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Bureau</label>
+                <Input type="text" disabled defaultValue={pendingEditPayment.tenantName || `Bureau ${pendingEditPayment.officeNumber}`} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Montant (MAD)</label>
+                <Input type="number" name="amount" required defaultValue={pendingEditPayment.amount} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Date</label>
+                <Input type="date" name="date" required defaultValue={pendingEditPayment.date} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">État</label>
+                <select name="etat" required defaultValue={pendingEditPayment.etat} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
+                  <option value="paye">Payé</option>
+                  <option value="non_paye">Non payé</option>
+                </select>
+              </div>
+              <div className="flex items-center gap-3 pt-4">
+                <Button type="submit" className="flex-1">Mettre à jour</Button>
+                <Button type="button" variant="destructive" onClick={handleDeletePayment} className="flex-1">
+                  Supprimer
+                </Button>
+              </div>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   );
 }
