@@ -3,7 +3,11 @@
 import { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/main-layout';
 import { ExpensesTable } from '@/components/expenses-table';
-import { Card } from '@/components/ui/card';
+import { ExpenseModal } from '@/components/expense-modal';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Plus, Download } from 'lucide-react';
+import { exportToXLSX } from '@/lib/utils';
 import {
   Select,
   SelectContent,
@@ -19,6 +23,7 @@ type FilterPeriod = 'this-month' | 'three-months' | 'all';
 export default function DepensesPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [filterPeriod, setFilterPeriod] = useState<FilterPeriod>('this-month');
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     fetch('/api/depenses')
@@ -61,9 +66,6 @@ export default function DepensesPage() {
   };
 
   const filteredExpenses = getFilteredExpenses();
-  const totalExpenses = filteredExpenses
-    .filter((e) => e.status === 'paid')
-    .reduce((sum, e) => sum + e.amount, 0);
 
   const handleAddExpense = async (newExpense: Expense) => {
     try {
@@ -87,13 +89,26 @@ export default function DepensesPage() {
           description: d.description,
           supplier: d.provider,
           amount: d.amount,
-          status: 'paid'
+          status: 'paid',
+          createdAt: new Date().toISOString()
         };
         setExpenses([...expenses, savedExpense]);
       }
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleExportXLSX = () => {
+    const dataToExport = filteredExpenses.map(e => ({
+      'Date': e.date,
+      'Catégorie': e.category,
+      'Description': e.description,
+      'Fournisseur': e.supplier,
+      'Montant': e.amount,
+      'Statut': e.status === 'paid' ? 'Payée' : 'En Attente'
+    }));
+    exportToXLSX(dataToExport, 'Depenses');
   };
 
   return (
@@ -108,39 +123,55 @@ export default function DepensesPage() {
           </p>
         </div>
 
-        <Card className="p-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <div className="flex items-center gap-4">
-              <span className="text-slate-700 font-medium">Période:</span>
-              <Select
-                value={filterPeriod}
-                onValueChange={(v) => setFilterPeriod(v as FilterPeriod)}
-              >
-                <SelectTrigger className="w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="this-month">Ce Mois</SelectItem>
-                  <SelectItem value="three-months">3 Derniers Mois</SelectItem>
-                  <SelectItem value="all">Tout</SelectItem>
-                </SelectContent>
-              </Select>
+        <Card className="border-border shadow-sm p-0">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 p-6 border-b border-border">
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground uppercase tracking-widest">Période</span>
+                <Select
+                  value={filterPeriod}
+                  onValueChange={(v) => setFilterPeriod(v as FilterPeriod)}
+                >
+                  <SelectTrigger className="w-[150px] bg-background">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="this-month">Ce Mois</SelectItem>
+                    <SelectItem value="three-months">3 Derniers Mois</SelectItem>
+                    <SelectItem value="all">Tout</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            <div className="bg-red-50 px-4 py-3 rounded-lg">
-              <p className="text-sm text-slate-600 mb-1">Total Dépenses</p>
-              <p className="text-2xl font-bold text-red-600">
-                {formatCurrency(totalExpenses)}
-              </p>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" className="gap-2" onClick={handleExportXLSX}>
+                <Download className="w-4 h-4" />
+                Exporter XLSX
+              </Button>
+              <Button onClick={() => setShowModal(true)} className="gap-2">
+                <Plus className="w-4 h-4" />
+                Ajouter Dépense
+              </Button>
             </div>
+          </CardHeader>
+          
+          <div className="p-6">
+            <ExpensesTable
+              expenses={filteredExpenses}
+            />
           </div>
-
-          <ExpensesTable
-            expenses={filteredExpenses}
-            onAddExpense={handleAddExpense}
-          />
         </Card>
       </div>
+      
+      <ExpenseModal
+        open={showModal}
+        onOpenChange={setShowModal}
+        onSave={(expense) => {
+          handleAddExpense(expense);
+          setShowModal(false);
+        }}
+      />
     </MainLayout>
   );
 }

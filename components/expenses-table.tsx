@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { Expense } from '@/lib/types';
 import { formatCurrency, formatDate } from '@/lib/utils';
-import { ExpenseModal } from './expense-modal';
 import { DataTable } from '@/components/ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 
@@ -17,10 +16,7 @@ interface ExpensesTableProps {
 
 export function ExpensesTable({
   expenses,
-  onAddExpense,
-}: ExpensesTableProps) {
-  const [showModal, setShowModal] = useState(false);
-
+}: Omit<ExpensesTableProps, 'onAddExpense'>) {
   const getCategoryBadge = (category: string) => {
     const categories: Record<string, string> = {
       salary: 'Salaire',
@@ -101,27 +97,11 @@ export function ExpensesTable({
 
   return (
     <div>
-      <div className="mb-4">
-        <Button onClick={() => setShowModal(true)} className="gap-2">
-          <Plus className="w-4 h-4" />
-          Ajouter Dépense
-        </Button>
-      </div>
-
       <DataTable
         columns={columns}
         data={expenses}
         searchKey="description"
         searchPlaceholder="Rechercher par description..."
-      />
-
-      <ExpenseModal
-        open={showModal}
-        onOpenChange={setShowModal}
-        onSave={(expense) => {
-          onAddExpense(expense);
-          setShowModal(false);
-        }}
       />
     </div>
   );

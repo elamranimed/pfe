@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useCallback } from 'react';
 import { MainLayout } from '@/components/main-layout';
 import { Payment, Office } from '@/lib/types';
 import * as XLSX from 'xlsx';
+import { exportToXLSX } from '@/lib/utils';
 import {
   Select,
   SelectContent,
@@ -423,6 +424,20 @@ export default function SuiviPaiementsPage() {
     [offices, payments, year]
   );
 
+  const handleExportXLSX = () => {
+    const dataToExport = filteredRows.map(row => {
+      const exportRow: any = {
+        'Bureau': row.numero,
+        'Locataire': row.locataire
+      };
+      row.months.forEach((m, i) => {
+        exportRow[MONTHS_FULL[i]] = m.status === 'paye' ? `Payé (${m.amount})` : 'Non payé';
+      });
+      return exportRow;
+    });
+    exportToXLSX(dataToExport, `Paiements_${year}`);
+  };
+
   const filteredRows = useMemo(() => {
     return bureauRows.filter(row => {
       if (bureauFilter !== 'tous' && row.id !== bureauFilter) return false;
@@ -590,6 +605,10 @@ export default function SuiviPaiementsPage() {
             </div>
             
             <div className="flex items-center gap-3">
+              <Button variant="outline" className="gap-2" onClick={handleExportXLSX}>
+                <Download className="w-4 h-4" />
+                Exporter XLSX
+              </Button>
               <Dialog>
                 <DialogTrigger asChild>
                   <Button className="flex items-center gap-2" variant="default">
@@ -630,15 +649,6 @@ export default function SuiviPaiementsPage() {
                   </form>
                 </DialogContent>
               </Dialog>
-
-              <Button
-                onClick={exportXLSX}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" />
-                Exporter XLSX
-              </Button>
             </div>
           </div>
 

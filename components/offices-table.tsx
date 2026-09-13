@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Plus, Edit2, Eye, Trash2 } from 'lucide-react';
 import { Office } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
-import { OfficeModal } from './office-modal';
 import { OfficeDetailsModal } from './office-details-modal';
 import {
   AlertDialog,
@@ -26,6 +25,7 @@ interface OfficesTableProps {
   onAddOffice: (office: Office) => void;
   onUpdateOffice: (office: Office) => void;
   onDeleteOffice?: (officeId: string) => void;
+  onEditOffice: (office: Office) => void;
   userRole: 'admin' | 'responsable';
 }
 
@@ -41,10 +41,9 @@ export function OfficesTable({
   onAddOffice,
   onUpdateOffice,
   onDeleteOffice,
+  onEditOffice,
   userRole,
 }: OfficesTableProps) {
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [editingOffice, setEditingOffice] = useState<Office | null>(null);
   const [selectedOffice, setSelectedOffice] = useState<Office | null>(null);
   const [deletingOffice, setDeletingOffice] = useState<Office | null>(null);
 
@@ -169,10 +168,7 @@ export function OfficesTable({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => {
-                    setEditingOffice(office);
-                    setShowAddModal(true);
-                  }}
+                  onClick={() => onEditOffice(office)}
                   title="Modifier"
                 >
                   <Edit2 className="w-4 h-4" />
@@ -196,41 +192,11 @@ export function OfficesTable({
 
   return (
     <div>
-      {userRole === 'admin' && (
-        <div className="mb-4">
-          <Button
-            onClick={() => {
-              setEditingOffice(null);
-              setShowAddModal(true);
-            }}
-            className="gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Ajouter Bureau
-          </Button>
-        </div>
-      )}
-
       <DataTable
         columns={columns}
         data={offices}
         searchKey="number"
         searchPlaceholder="Rechercher par N° Bureau..."
-      />
-
-      <OfficeModal
-        open={showAddModal}
-        onOpenChange={setShowAddModal}
-        office={editingOffice}
-        onSave={(office) => {
-          if (editingOffice) {
-            onUpdateOffice(office);
-          } else {
-            onAddOffice(office);
-          }
-          setShowAddModal(false);
-          setEditingOffice(null);
-        }}
       />
 
       <OfficeDetailsModal

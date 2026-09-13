@@ -3,11 +3,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { MainLayout } from '@/components/main-layout';
 import { RecouvrementTable, UnpaidOffice } from '@/components/recouvrement-table';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
 import { Office } from '@/lib/types';
-import { AlertTriangle, Building2, TrendingDown } from 'lucide-react';
-import { KpiCard } from '@/components/kpi-card';
+import { Download, Mail } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { exportToXLSX } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 const mapBureauToOffice = (b: any): Office => ({
   id: String(b.id_bureau),
@@ -29,6 +31,10 @@ export default function RecouvrementPage() {
   const [paiements, setPaiements] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [sendingEmails, setSendingEmails] = useState<Set<string>>(new Set());
+  const [sentEmails, setSentEmails] = useState<Set<string>>(new Set());
+  const { toast } = useToast();
 
   useEffect(() => {
     let mounted = true;
@@ -106,11 +112,130 @@ export default function RecouvrementPage() {
       .filter((o) => o.moisImpayes > 0);
   }, [offices, paiements]);
 
-  const totalUnpaid = unpaidOffices.reduce((sum, o) => sum + o.montantCumul, 0);
   const currentMonthLabel = new Date().toLocaleDateString('fr-FR', {
     month: 'long',
     year: 'numeric',
   });
+
+  const handleExportXLSX = () => {
+    const dataToExport = unpaidOffices.map(u => {
+      const o = u.office;
+      return {
+        'Bureau': o.number,
+        'Locataire': o.name || o.tenant?.companyName || '-',
+        'Cotisation': o.cotisation,
+        'Mois Impayés': u.moisImpayes,
+        'Montant Total Dû': u.montantCumul,
+        'Email': o.email || o.tenant?.email || '-',
+        'Téléphone': o.telephone || o.tenant?.phone || '-'
+      };
+    });
+    exportToXLSX(dataToExport, 'Recouvrement');
+  };
+
+  const sendRelance = async (office: Office, montantCumul: number, moisImpayes: number) => {
+    if (!office.email) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Aucun email enregistré pour ce bureau",
+      });
+      return;
+    }
+
+    setSendingEmails(prev => new Set(prev).add(office.id));
+
+    try {
+      console.log('🔵 Envoi de la relance...', {
+        officeNumber: office.number,
+        email: office.email,
+        montantCumul,
+        moisImpayes,
+      });
+
+      const response = await fetch('/api/relance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          officeNumber: office.number,
+          officeName: office.name,
+          email: office.email,
+          telephone: office.telephone,
+          moisImpayes,
+          montantCumul,
+        }),
+      });
+
+      console.log('🔵 Réponse statut:', response.status);
+
+      const data = await response.json();
+      console.log('🔵 Réponse données:', data);
+
+      if (!response.ok) {
+        console.error('❌ Erreur API:', data);
+        throw new Error(data.error || data.details || 'Erreur lors de l\'envoi');
+      }
+
+      setSentEmails(prev => new Set(prev).add(office.id));
+      
+      toast({
+        title: "✅ Email envoyé",
+        description: `Relance envoyée à ${office.email}`,
+      });
+
+    } catch (error: any) {
+      console.error('❌ Erreur complète:', error);
+      toast({
+        variant: "destructive",
+        title: "Erreur d'envoi",
+        description: error.message || "Impossible d'envoyer l'email",
+      });
+    } finally {
+      setSendingEmails(prev => {
+        const next = new Set(prev);
+        next.delete(office.id);
+        return next;
+      });
+    }
+  };
+
+  const sendAllRelances = async () => {
+    const officesWithEmail = unpaidOffices.filter(u => u.office.email);
+    
+    if (officesWithEmail.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "Aucun email",
+        description: "Aucun bureau n'a d'email enregistré",
+      });
+      return;
+    }
+
+    toast({
+      title: "Envoi en cours...",
+      description: `Envoi de ${officesWithEmail.length} relances`,
+    });
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (const unpaid of officesWithEmail) {
+      try {
+        await sendRelance(unpaid.office, unpaid.montantCumul, unpaid.moisImpayes);
+        successCount++;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (error) {
+        errorCount++;
+      }
+    }
+
+    toast({
+      title: "✅ Terminé",
+      description: `${successCount} relance(s) envoyée(s)${errorCount > 0 ? `, ${errorCount} échec(s)` : ''}`,
+    });
+  };
 
   return (
     <MainLayout>
@@ -122,47 +247,40 @@ export default function RecouvrementPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <KpiCard
-            icon={<AlertTriangle className="w-5 h-5 text-red-500" />}
-            label="Bureaux impayés"
-            value={String(unpaidOffices.length)}
-            accentColor="#ef4444"
-            accentBg="rgba(239, 68, 68, 0.1)"
-          />
-          <KpiCard
-            icon={<TrendingDown className="w-5 h-5 text-amber-500" />}
-            label="Montant total dû"
-            value={formatCurrency(totalUnpaid)}
-            accentColor="#f59e0b"
-            accentBg="rgba(245, 158, 11, 0.1)"
-          />
-          <KpiCard
-            icon={<Building2 className="w-5 h-5 text-slate-500" />}
-            label="Total bureaux"
-            value={String(offices.length)}
-            accentColor="#64748b"
-            accentBg="rgba(100, 116, 139, 0.1)"
-          />
-        </div>
+        <Card className="border-border shadow-sm p-0">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 p-6 border-b border-border">
+            <div>
+              <CardTitle>Liste des bureaux impayés</CardTitle>
+              <CardDescription>Cliquez sur une action pour envoyer une relance par email</CardDescription>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" className="gap-2" onClick={handleExportXLSX}>
+                <Download className="w-4 h-4" />
+                Exporter XLSX
+              </Button>
+              <Button
+                onClick={sendAllRelances}
+                variant="destructive"
+                disabled={unpaidOffices.filter(u => u.office.email).length === 0}
+              >
+                <Mail className="w-4 h-4 mr-2" />
+                Envoyer toutes les relances
+              </Button>
+            </div>
+          </CardHeader>
 
-        <div className="rounded-2xl overflow-hidden bg-card border border-border shadow-sm">
-          <div className="px-6 py-4 border-b border-border">
-            <h2 className="text-lg font-bold text-card-foreground">
-              Liste des bureaux impayés
-            </h2>
-            <p className="text-xs text-muted-foreground mt-1">Cliquez sur une action pour envoyer une relance par email</p>
-          </div>
-
-          <div className="p-6">
+          <CardContent>
             {error && <p className="text-destructive mb-4 text-sm font-medium">{error}</p>}
 
             <RecouvrementTable
               unpaidOffices={unpaidOffices}
               loading={loading}
+              sendingEmails={sendingEmails}
+              sentEmails={sentEmails}
+              onSendRelance={sendRelance}
             />
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </MainLayout>
   );

@@ -3,7 +3,11 @@
 import { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/main-layout';
 import { OfficesTable } from '@/components/offices-table';
-import { Card } from '@/components/ui/card';
+import { OfficeModal } from '@/components/office-modal';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Plus, Download } from 'lucide-react';
+import { exportToXLSX } from '@/lib/utils';
 import {
   Select,
   SelectContent,
@@ -89,6 +93,8 @@ export default function BureauxPage() {
 
   const [role, setRole] = useState<'admin' | 'responsable' | null>(null);
   const [roleLoading, setRoleLoading] = useState(true);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editingOffice, setEditingOffice] = useState<Office | null>(null);
 
   useEffect(() => {
     const resolvedRole = getUserRole();
@@ -135,6 +141,20 @@ export default function BureauxPage() {
     }
   };
 
+  const handleExportXLSX = () => {
+    const dataToExport = filteredOffices.map(o => ({
+      'Bureau': o.number,
+      'Locataire': o.name || o.tenant?.companyName || '-',
+      'Étage': o.floor,
+      'Type': o.type === 'individual' ? 'Individuel' : o.type === 'open-space' ? 'Open-Space' : 'Salle de Réunion',
+      'Téléphone': o.telephone || o.tenant?.phone || '-',
+      'Email': o.email || o.tenant?.email || '-',
+      'Cotisation': o.cotisation,
+      'Statut': o.status === 'occupied' ? 'Occupé' : o.status === 'maintenance' ? 'Maintenance' : 'Disponible'
+    }));
+    exportToXLSX(dataToExport, 'Bureaux');
+  };
+
   if (roleLoading) {
     return (
       <MainLayout>
@@ -165,37 +185,79 @@ export default function BureauxPage() {
           </p>
         </div>
 
-        <Card className="p-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <div className="flex items-center gap-4">
-              <span className="text-slate-700 font-medium">Filtrer:</span>
-              <Select value={filter} onValueChange={(value) => setFilter(value as FilterStatus)}>
-                <SelectTrigger className="w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous</SelectItem>
-                  <SelectItem value="available">Disponible</SelectItem>
-                  <SelectItem value="occupied">Occupé</SelectItem>
-                  <SelectItem value="maintenance">Maintenance</SelectItem>
-                </SelectContent>
-              </Select>
+        <Card className="border-border shadow-sm p-0">
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 p-6 border-b border-border">
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground uppercase tracking-widest">Filtrer</span>
+                <Select value={filter} onValueChange={(value) => setFilter(value as FilterStatus)}>
+                  <SelectTrigger className="w-[150px] bg-background">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous</SelectItem>
+                    <SelectItem value="available">Disponible</SelectItem>
+                    <SelectItem value="occupied">Occupé</SelectItem>
+                    <SelectItem value="maintenance">Maintenance</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-          </div>
 
-          {loading && <p className="text-slate-500 text-center py-8">Chargement...</p>}
-          {error && <p className="text-red-500 text-center py-8">{error}</p>}
-          {!loading && !error && (
-            <OfficesTable
-              offices={filteredOffices}
-              onAddOffice={handleAddOffice}
-              onUpdateOffice={handleUpdateOffice}
-              onDeleteOffice={handleDeleteOffice}
-              userRole={role}
-            />
-          )}
+            <div className="flex items-center gap-3">
+              <Button variant="outline" className="gap-2" onClick={handleExportXLSX}>
+                <Download className="w-4 h-4" />
+                Exporter XLSX
+              </Button>
+              {role === 'admin' && (
+                <Button
+                  onClick={() => {
+                    setEditingOffice(null);
+                    setShowAddModal(true);
+                  }}
+                  className="gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Ajouter Bureau
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-6">
+            {loading && <p className="text-slate-500 text-center py-8">Chargement...</p>}
+            {error && <p className="text-red-500 text-center py-8">{error}</p>}
+            {!loading && !error && (
+              <OfficesTable
+                offices={filteredOffices}
+                onAddOffice={handleAddOffice}
+                onUpdateOffice={handleUpdateOffice}
+                onDeleteOffice={handleDeleteOffice}
+                onEditOffice={(office) => {
+                  setEditingOffice(office);
+                  setShowAddModal(true);
+                }}
+                userRole={role}
+              />
+            )}
+          </CardContent>
         </Card>
       </div>
+
+      <OfficeModal
+        open={showAddModal}
+        onOpenChange={setShowAddModal}
+        office={editingOffice}
+        onSave={(office) => {
+          if (editingOffice) {
+            handleUpdateOffice(office);
+          } else {
+            handleAddOffice(office);
+          }
+          setShowAddModal(false);
+          setEditingOffice(null);
+        }}
+      />
     </MainLayout>
   );
 }

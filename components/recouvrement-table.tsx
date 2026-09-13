@@ -6,7 +6,6 @@ import { formatCurrency } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Mail, Loader2, CheckCircle2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import { DataTable } from '@/components/ui/data-table';
 import { ColumnDef } from '@tanstack/react-table';
 
@@ -20,118 +19,18 @@ export interface UnpaidOffice {
 interface RecouvrementTableProps {
   unpaidOffices: UnpaidOffice[];
   loading: boolean;
+  sendingEmails: Set<string>;
+  sentEmails: Set<string>;
+  onSendRelance: (office: Office, montantCumul: number, moisImpayes: number) => void;
 }
 
-export function RecouvrementTable({ unpaidOffices, loading }: RecouvrementTableProps) {
-  const [sendingEmails, setSendingEmails] = useState<Set<string>>(new Set());
-  const [sentEmails, setSentEmails] = useState<Set<string>>(new Set());
-  const { toast } = useToast();
-
-  const sendRelance = async (office: Office, montantCumul: number, moisImpayes: number) => {
-    if (!office.email) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Aucun email enregistré pour ce bureau",
-      });
-      return;
-    }
-
-    setSendingEmails(prev => new Set(prev).add(office.id));
-
-    try {
-      console.log('🔵 Envoi de la relance...', {
-        officeNumber: office.number,
-        email: office.email,
-        montantCumul,
-        moisImpayes,
-      });
-
-      const response = await fetch('/api/relance', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          officeNumber: office.number,
-          officeName: office.name,
-          email: office.email,
-          telephone: office.telephone,
-          moisImpayes,
-          montantCumul,
-        }),
-      });
-
-      console.log('🔵 Réponse statut:', response.status);
-
-      const data = await response.json();
-      console.log('🔵 Réponse données:', data);
-
-      if (!response.ok) {
-        console.error('❌ Erreur API:', data);
-        throw new Error(data.error || data.details || 'Erreur lors de l\'envoi');
-      }
-
-      setSentEmails(prev => new Set(prev).add(office.id));
-      
-      toast({
-        title: "✅ Email envoyé",
-        description: `Relance envoyée à ${office.email}`,
-      });
-
-    } catch (error: any) {
-      console.error('❌ Erreur complète:', error);
-      toast({
-        variant: "destructive",
-        title: "Erreur d'envoi",
-        description: error.message || "Impossible d'envoyer l'email",
-      });
-    } finally {
-      setSendingEmails(prev => {
-        const next = new Set(prev);
-        next.delete(office.id);
-        return next;
-      });
-    }
-  };
-
-  const sendAllRelances = async () => {
-    const officesWithEmail = unpaidOffices.filter(u => u.office.email);
-    
-    if (officesWithEmail.length === 0) {
-      toast({
-        variant: "destructive",
-        title: "Aucun email",
-        description: "Aucun bureau n'a d'email enregistré",
-      });
-      return;
-    }
-
-    toast({
-      title: "Envoi en cours...",
-      description: `Envoi de ${officesWithEmail.length} relances`,
-    });
-
-    let successCount = 0;
-    let errorCount = 0;
-
-    for (const unpaid of officesWithEmail) {
-      try {
-        await sendRelance(unpaid.office, unpaid.montantCumul, unpaid.moisImpayes);
-        successCount++;
-        // Attendre 1 seconde entre chaque email pour éviter le rate limiting
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      } catch (error) {
-        errorCount++;
-      }
-    }
-
-    toast({
-      title: "Envoi terminé",
-      description: `${successCount} envoyés, ${errorCount} erreurs`,
-    });
-  };
-
+export function RecouvrementTable({ 
+  unpaidOffices, 
+  loading,
+  sendingEmails,
+  sentEmails,
+  onSendRelance
+}: RecouvrementTableProps) {
   const columns: ColumnDef<UnpaidOffice>[] = useMemo(() => [
     {
       accessorFn: (row) => row.office.number,
@@ -168,7 +67,7 @@ export function RecouvrementTable({ unpaidOffices, loading }: RecouvrementTableP
       accessorKey: 'montantMoisEnCours',
       header: 'Mois en cours',
       cell: ({ row }) => (
-        <span className="font-bold text-orange-600">
+        <span className="font-medium text-foreground">
           {formatCurrency(row.original.montantMoisEnCours)}
         </span>
       ),
@@ -177,7 +76,7 @@ export function RecouvrementTable({ unpaidOffices, loading }: RecouvrementTableP
       accessorKey: 'montantCumul',
       header: 'Cumul total',
       cell: ({ row }) => (
-        <span className="font-bold text-red-600">
+        <span className="font-medium text-foreground">
           {formatCurrency(row.original.montantCumul)}
         </span>
       ),
@@ -202,9 +101,9 @@ export function RecouvrementTable({ unpaidOffices, loading }: RecouvrementTableP
         return (
           <Button
             size="sm"
-            variant="outline"
-            className="flex items-center gap-2 border-destructive/30 text-destructive hover:bg-destructive/10"
-            onClick={() => sendRelance(office, montantCumul, moisImpayes)}
+            variant="secondary"
+            className="flex items-center gap-2"
+            onClick={() => onSendRelance(office, montantCumul, moisImpayes)}
             disabled={!office.email || isSending}
             title={!office.email ? 'Aucun email enregistré' : `Envoyer à ${office.email}`}
           >
@@ -238,17 +137,6 @@ export function RecouvrementTable({ unpaidOffices, loading }: RecouvrementTableP
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button
-          onClick={sendAllRelances}
-          variant="destructive"
-          disabled={unpaidOffices.filter(u => u.office.email).length === 0}
-        >
-          <Mail className="w-4 h-4 mr-2" />
-          Envoyer toutes les relances
-        </Button>
-      </div>
-
       <DataTable
         columns={columns}
         data={unpaidOffices}
