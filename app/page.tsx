@@ -115,8 +115,10 @@ const PIE_COLORS = ['#34d399', '#f87171'];
    MAIN DASHBOARD PAGE
    ═══════════════════════════════════════════════ */
 export default function DashboardPage() {
-  const [payments, setPayments] = useState<Payment[]>([]);
   const [offices, setOffices] = useState<Office[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [expenses, setExpenses] = useState<any[]>([]);
+  const [demandes, setDemandes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [role, setRole] = useState<'admin' | 'responsable' | null>(null);
@@ -152,9 +154,17 @@ export default function DashboardPage() {
         if (!resP.ok) throw new Error('Erreur chargement paiements');
         const paiements = await resP.json();
 
+        const resE = await fetch('/api/depenses', { credentials: 'include', cache: 'no-store' });
+        const expensesData = resE.ok ? await resE.json() : [];
+
+        const resD = await fetch('/api/demandes', { credentials: 'include', cache: 'no-store' });
+        const demandesData = resD.ok ? await resD.json() : [];
+
         if (!mounted) return;
         setOffices(mappedB);
         setPayments(paiements.map((p: any) => mapPaiementDto(p, bureauMap)));
+        setExpenses(expensesData);
+        setDemandes(demandesData);
       } catch (err: any) {
         if (mounted) setError(err.message);
       } finally {
@@ -196,6 +206,18 @@ export default function DashboardPage() {
     const unpaidPrev = Math.max(0, prevExpected - prevCollected);
     const unpaidTrend = unpaidPrev > 0 ? Math.round(((unpaid - unpaidPrev) / unpaidPrev) * 100) : 0;
 
+    // Net Profit and Expenses
+    const currentYearExpenses = expenses
+      .filter(e => new Date(e.date).getFullYear() === year)
+      .reduce((sum, e) => sum + Number(e.amount), 0);
+    const netProfit = collected - currentYearExpenses;
+
+    // Bureaux à relancer (Unpaid offices for current year months that have passed)
+    const activeOfficesToRemind = activeOffices.filter(office => {
+      // Find if this office has any 'non_paye' payments in the past
+      return payments.some(p => p.officeId === office.id && p.etat !== 'paye' && new Date(p.date) <= now);
+    }).length;
+
     return {
       collected,
       unpaid,
@@ -206,8 +228,11 @@ export default function DashboardPage() {
       revenueTrend,
       rateTrend: collectionRate - prevCollectionRate,
       unpaidTrend,
+      currentYearExpenses,
+      netProfit,
+      activeOfficesToRemind
     };
-  }, [offices, payments, year, monthsElapsed]);
+  }, [offices, payments, expenses, year, monthsElapsed]);
 
   /* ─── Bar chart data (monthly Collecté vs Attendu) ─── */
   const monthlyChartData = useMemo(() => {
@@ -295,7 +320,7 @@ export default function DashboardPage() {
 
         {/* ────── KPI Summary Cards ────── */}
         {!loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             <KpiCard
               icon={
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -346,6 +371,32 @@ export default function DashboardPage() {
               value={`${kpis.activeOffices} / ${kpis.totalOffices}`}
               accentColor="#8b5cf6"
               accentBg="rgba(139,92,246,0.1)"
+            />
+            <KpiCard
+              icon={
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+              }
+              label="Bénéfice Net"
+              value={formatCurrency(kpis.netProfit)}
+              trend={0}
+              trendLabel="Sur l'année"
+              accentColor="#6366f1"
+              accentBg="rgba(99,102,241,0.1)"
+            />
+            <KpiCard
+              icon={
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+              }
+              label="À Relancer"
+              value={String(kpis.activeOfficesToRemind)}
+              trend={0}
+              trendLabel="Locataires en retard"
+              accentColor="#f43f5e"
+              accentBg="rgba(244,63,94,0.1)"
             />
           </div>
         )}
@@ -433,8 +484,9 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {!loading && recentPayments.length > 0 && (
-          <Card>
+        {!loading && (recentPayments.length > 0 || demandes.length > 0) && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
             <CardHeader>
               <CardTitle>Derniers Paiements</CardTitle>
               <CardDescription>Les 5 paiements les plus récents</CardDescription>
@@ -462,19 +514,51 @@ export default function DashboardPage() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-semibold text-foreground">
+                    <div className="text-right flex flex-col items-end gap-1">
+                      <span className="font-bold text-foreground">
                         {formatCurrency(p.amount)}
                       </span>
-                      <Badge variant={p.etat === 'paye' ? 'success' : p.etat === 'en_cours' ? 'warning' : 'destructive'}>
-                        {p.etat === 'paye' ? 'Payé' : p.etat === 'en_cours' ? 'En cours' : 'Impayé'}
-                      </Badge>
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                        {p.etat}
+                      </span>
                     </div>
                   </div>
                 ))}
               </div>
             </CardContent>
           </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Dernières Demandes</CardTitle>
+              <CardDescription>Les demandes et réclamations récentes</CardDescription>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="divide-y divide-border">
+                {demandes.slice(0, 5).map((d: any) => (
+                  <div key={d.id_demande} className="flex items-center justify-between px-6 py-4 hover:bg-muted/50 transition-colors">
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-foreground capitalize">
+                        {d.objet}
+                      </span>
+                      <span className="text-xs text-muted-foreground mt-0.5">
+                        Par: {d.created_by} — Le: {new Date(d.created_at).toLocaleDateString('fr-FR')}
+                      </span>
+                    </div>
+                    <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${d.objet === 'reclamation' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
+                      {d.objet}
+                    </span>
+                  </div>
+                ))}
+                {demandes.length === 0 && (
+                  <div className="p-6 text-center text-muted-foreground text-sm">
+                    Aucune demande récente.
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          </div>
         )}
 
       </div>

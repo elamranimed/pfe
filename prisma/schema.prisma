@@ -56,11 +56,12 @@ model Paiement {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Expenses {
+  id_expense  Int      @id @default(autoincrement())
   date        DateTime @db.Date
   category    String
-  description String   @id
+  description String
   provider    String
-  amount      BigInt
+  amount      Float
 }
 
 enum Role {

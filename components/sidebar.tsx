@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Building, CreditCard, Receipt, ShieldAlert, Grid, LogOut } from 'lucide-react';
+import { LayoutDashboard, Building, CreditCard, Receipt, ShieldAlert, MessageSquareWarning, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function Sidebar() {
@@ -34,6 +34,11 @@ export function Sidebar() {
       href: '/depenses',
       label: 'Dépenses',
       icon: Receipt,
+    },
+    {
+      href: '/demandes',
+      label: 'Demandes',
+      icon: MessageSquareWarning,
     },
   ];
 

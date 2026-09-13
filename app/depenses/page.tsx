@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/main-layout';
 import { ExpensesTable } from '@/components/expenses-table';
 import { Card } from '@/components/ui/card';
@@ -11,15 +11,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { mockExpenses } from '@/lib/mock-data';
 import { Expense } from '@/lib/types';
 import { formatCurrency } from '@/lib/utils';
 
 type FilterPeriod = 'this-month' | 'three-months' | 'all';
 
 export default function DepensesPage() {
-  const [expenses, setExpenses] = useState<Expense[]>(mockExpenses);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [filterPeriod, setFilterPeriod] = useState<FilterPeriod>('this-month');
+
+  useEffect(() => {
+    fetch('/api/depenses')
+      .then(res => res.json())
+      .then(data => {
+        setExpenses(data.map((d: any) => ({
+          id: String(d.id_expense),
+          date: new Date(d.date).toISOString().split('T')[0],
+          category: d.category,
+          description: d.description,
+          supplier: d.provider,
+          amount: d.amount,
+          status: 'paid'
+        })));
+      })
+      .catch(console.error);
+  }, []);
 
   const getFilteredExpenses = () => {
     const now = new Date();
@@ -49,8 +65,35 @@ export default function DepensesPage() {
     .filter((e) => e.status === 'paid')
     .reduce((sum, e) => sum + e.amount, 0);
 
-  const handleAddExpense = (newExpense: Expense) => {
-    setExpenses([...expenses, newExpense]);
+  const handleAddExpense = async (newExpense: Expense) => {
+    try {
+      const res = await fetch('/api/depenses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date: newExpense.date,
+          category: newExpense.category,
+          description: newExpense.description,
+          provider: newExpense.supplier,
+          amount: newExpense.amount,
+        })
+      });
+      if (res.ok) {
+        const d = await res.json();
+        const savedExpense: Expense = {
+          id: String(d.id_expense),
+          date: new Date(d.date).toISOString().split('T')[0],
+          category: d.category as any,
+          description: d.description,
+          supplier: d.provider,
+          amount: d.amount,
+          status: 'paid'
+        };
+        setExpenses([...expenses, savedExpense]);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
