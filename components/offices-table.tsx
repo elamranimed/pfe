@@ -98,9 +98,10 @@ export function OfficesTable({
 
   const columns: ColumnDef<Office>[] = useMemo(() => [
     {
-      accessorKey: 'number',
+      accessorFn: (row) => `#${row.number}`,
+      id: 'number',
       header: 'N° Bureau',
-      cell: ({ row }) => <span className="font-bold">{row.original.number}</span>,
+      cell: ({ row }) => <span className="font-bold">#{row.original.number}</span>,
     },
     {
       id: 'locataire',
