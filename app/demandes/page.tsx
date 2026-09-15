@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Download, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Download, Pencil, Trash2, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { exportToXLSX } from '@/lib/utils';
@@ -19,8 +19,9 @@ export default function DemandesPage() {
   const [loading, setLoading] = useState(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newDemande, setNewDemande] = useState({ objet: 'reclamation', created_by: '' });
+  const [newDemande, setNewDemande] = useState({ objet: 'reclamation', created_by: '', sujet: '' });
   const [editingDemandeId, setEditingDemandeId] = useState<number | null>(null);
+  const [isViewMode, setIsViewMode] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [role, setRole] = useState<'admin' | 'responsable' | null>(null);
 
@@ -65,7 +66,7 @@ export default function DemandesPage() {
         });
         if (res.ok) {
           setIsModalOpen(false);
-          setNewDemande({ objet: 'reclamation', created_by: '' });
+          setNewDemande({ objet: 'reclamation', created_by: '', sujet: '' });
           setEditingDemandeId(null);
           fetchDemandes();
         }
@@ -77,7 +78,7 @@ export default function DemandesPage() {
         });
         if (res.ok) {
           setIsModalOpen(false);
-          setNewDemande({ objet: 'reclamation', created_by: '' });
+          setNewDemande({ objet: 'reclamation', created_by: '', sujet: '' });
           fetchDemandes();
         }
       }
@@ -90,7 +91,15 @@ export default function DemandesPage() {
 
   const handleEditClick = (d: any) => {
     setEditingDemandeId(d.id_demande);
-    setNewDemande({ objet: d.objet, created_by: d.created_by });
+    setNewDemande({ objet: d.objet, created_by: d.created_by, sujet: d.sujet || '' });
+    setIsViewMode(false);
+    setIsModalOpen(true);
+  };
+
+  const handleViewClick = (d: any) => {
+    setEditingDemandeId(d.id_demande);
+    setNewDemande({ objet: d.objet, created_by: d.created_by, sujet: d.sujet || '' });
+    setIsViewMode(true);
     setIsModalOpen(true);
   };
 
@@ -131,17 +140,18 @@ export default function DemandesPage() {
                 <Download className="w-4 h-4" />
                 Exporter XLSX
               </Button>
-              <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogTrigger asChild>
-                  <Button className="gap-2">
-                    <Plus className="w-4 h-4" />
-                    Nouvelle demande
-                  </Button>
-                </DialogTrigger>
+              {role === 'responsable' && (
+                <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="gap-2">
+                      <Plus className="w-4 h-4" />
+                      Nouvelle demande
+                    </Button>
+                  </DialogTrigger>
                 <DialogContent>
                   <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                      <DialogTitle>{editingDemandeId ? 'Modifier la demande' : 'Ajouter une demande'}</DialogTitle>
+                      <DialogTitle>{isViewMode ? 'Voir la demande' : (editingDemandeId ? 'Modifier la demande' : 'Ajouter une demande')}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                       <div className="space-y-2">
@@ -149,6 +159,7 @@ export default function DemandesPage() {
                         <Select
                           value={newDemande.objet}
                           onValueChange={(val) => setNewDemande({ ...newDemande, objet: val })}
+                          disabled={isViewMode}
                         >
                           <SelectTrigger id="objet">
                             <SelectValue placeholder="Sélectionnez le type" />
@@ -166,6 +177,7 @@ export default function DemandesPage() {
                           placeholder="Nom du locataire ou déclarant"
                           value={newDemande.created_by}
                           onChange={(e) => setNewDemande({ ...newDemande, created_by: e.target.value })}
+                          disabled={isViewMode}
                           required
                         />
                       </div>
@@ -174,15 +186,19 @@ export default function DemandesPage() {
                       <Button type="button" variant="outline" onClick={() => {
                         setIsModalOpen(false);
                         setEditingDemandeId(null);
+                        setIsViewMode(false);
                         setNewDemande({ objet: 'reclamation', created_by: '' });
                       }}>Annuler</Button>
-                      <Button type="submit" disabled={submitting}>
-                        {submitting ? 'Enregistrement...' : (editingDemandeId ? 'Modifier' : 'Créer')}
-                      </Button>
+                      {!isViewMode && (
+                        <Button type="submit" disabled={submitting}>
+                          {submitting ? 'Enregistrement...' : (editingDemandeId ? 'Modifier' : 'Créer')}
+                        </Button>
+                      )}
                     </DialogFooter>
                   </form>
                 </DialogContent>
               </Dialog>
+              )}
             </div>
           </CardHeader>
           <CardContent>
@@ -215,13 +231,25 @@ export default function DemandesPage() {
                         <td className="px-6 py-4">{d.created_by}</td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Button variant="ghost" size="icon" onClick={() => handleEditClick(d)} className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
-                              <Pencil className="h-4 w-4" />
-                            </Button>
+                            {role === 'responsable' && (
+                              <>
+                                <Button variant="ghost" size="icon" onClick={() => handleEditClick(d)} className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" onClick={() => handleDelete(d.id_demande)} className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </>
+                            )}
                             {role === 'admin' && (
-                              <Button variant="ghost" size="icon" onClick={() => handleDelete(d.id_demande)} className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50">
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                              <>
+                                <Button variant="ghost" size="icon" onClick={() => handleViewClick(d)} className="h-8 w-8 text-gray-600 hover:text-gray-700 hover:bg-gray-50">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" onClick={() => handleDelete(d.id_demande)} className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50">
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </>
                             )}
                           </div>
                         </td>
@@ -240,6 +268,84 @@ export default function DemandesPage() {
             )}
           </CardContent>
         </Card>
+
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent>
+            <form onSubmit={handleSubmit}>
+              <DialogHeader>
+                <DialogTitle>{isViewMode ? 'Voir la demande' : (editingDemandeId ? 'Modifier la demande' : 'Ajouter une demande')}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="objet">Type de demande</Label>
+                  <Select
+                    value={newDemande.objet}
+                    onValueChange={(val) => setNewDemande({ ...newDemande, objet: val })}
+                    disabled={isViewMode}
+                  >
+                    <SelectTrigger id="objet">
+                      <SelectValue placeholder="Sélectionnez le type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="reclamation">Réclamation</SelectItem>
+                      <SelectItem value="creation">Création</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="created_by">Demandeur</Label>
+                  <Input 
+                    id="created_by"
+                    placeholder="Nom du locataire ou déclarant"
+                    value={newDemande.created_by}
+                    onChange={(e) => setNewDemande({ ...newDemande, created_by: e.target.value })}
+                    disabled={isViewMode}
+                    required
+                  />
+                </div>
+                {!isViewMode && role === 'responsable' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="sujet">Sujet</Label>
+                    <textarea 
+                      id="sujet"
+                      placeholder="Détails de la demande"
+                      value={newDemande.sujet}
+                      onChange={(e) => setNewDemande({ ...newDemande, sujet: e.target.value })}
+                      className="w-full px-3 py-2 border border-input rounded-md text-sm"
+                      rows={3}
+                    />
+                  </div>
+                )}
+                {isViewMode && (
+                  <div className="space-y-2">
+                    <Label htmlFor="sujet">Sujet</Label>
+                    <textarea 
+                      id="sujet"
+                      placeholder="Détails de la demande"
+                      value={newDemande.sujet}
+                      className="w-full px-3 py-2 border border-input rounded-md text-sm"
+                      rows={3}
+                      disabled
+                    />
+                  </div>
+                )}
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => {
+                  setIsModalOpen(false);
+                  setEditingDemandeId(null);
+                  setIsViewMode(false);
+                  setNewDemande({ objet: 'reclamation', created_by: '', sujet: '' });
+                }}>Annuler</Button>
+                {!isViewMode && (
+                  <Button type="submit" disabled={submitting}>
+                    {submitting ? 'Enregistrement...' : (editingDemandeId ? 'Modifier' : 'Créer')}
+                  </Button>
+                )}
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </MainLayout>
   );

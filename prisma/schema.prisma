@@ -54,8 +54,7 @@ model Paiement {
   Bureau      Bureau    @relation(fields: [id_bureau], references: [id_bureau], onDelete: NoAction, onUpdate: NoAction)
 }
 
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model Expenses {
+model Expense {
   id_expense  Int      @id @default(autoincrement())
   date        DateTime @db.Date
   category    String

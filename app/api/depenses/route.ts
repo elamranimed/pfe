@@ -3,26 +3,30 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
-    const expenses = await prisma.expenses.findMany({
+    const expense = await prisma.expense.findMany({
       orderBy: { date: 'desc' },
     });
     
     // Convert BigInt to Number to avoid JSON serialization error
-    const serializedExpenses = expenses.map(expense => ({
+    const serializedExpense = expense.map(expense => ({
       ...expense,
       amount: Number(expense.amount)
     }));
     
-    return NextResponse.json(serializedExpenses);
+    return NextResponse.json(serializedExpense);
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error('Depenses API Error:', err);
+    return NextResponse.json({ 
+      error: err.message,
+      details: err.toString()
+    }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
   try {
     const data = await req.json();
-    const expense = await prisma.expenses.create({
+    const expense = await prisma.expense.create({
       data: {
         date: new Date(data.date),
         category: data.category,

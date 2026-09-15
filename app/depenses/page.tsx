@@ -27,19 +27,33 @@ export default function DepensesPage() {
 
   useEffect(() => {
     fetch('/api/depenses')
-      .then(res => res.json())
-      .then(data => {
-        setExpenses(data.map((d: any) => ({
-          id: String(d.id_expense),
-          date: new Date(d.date).toISOString().split('T')[0],
-          category: d.category,
-          description: d.description,
-          supplier: d.provider,
-          amount: d.amount,
-          status: 'paid'
-        })));
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`API error: ${res.status}`);
+        }
+        return res.json();
       })
-      .catch(console.error);
+      .then(data => {
+        // Ensure data is an array before mapping
+        if (Array.isArray(data)) {
+          setExpenses(data.map((d: any) => ({
+            id: String(d.id_expense),
+            date: new Date(d.date).toISOString().split('T')[0],
+            category: d.category,
+            description: d.description,
+            supplier: d.provider,
+            amount: d.amount,
+            status: 'paid'
+          })));
+        } else {
+          console.error('Unexpected data format:', data);
+          setExpenses([]);
+        }
+      })
+      .catch(err => {
+        console.error('Failed to fetch expenses:', err);
+        setExpenses([]);
+      });
   }, []);
 
   const getFilteredExpenses = () => {
