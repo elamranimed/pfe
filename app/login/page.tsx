@@ -43,8 +43,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
+    <div
+      className="relative min-h-screen flex items-center justify-center bg-white bg-cover bg-center bg-no-repeat p-4"
+      style={{ backgroundImage: "url('/logoSyndic.png')" }}
+    >
+      <div className="absolute inset-0 bg-white/55" />
+      <Card className="relative w-full max-w-md border-white/70 bg-white/90 shadow-xl backdrop-blur-sm">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold">Connexion Utilisateur</CardTitle>
           <CardDescription>
@@ -95,4 +99,4 @@ export default function LoginPage() {
       </Card>
     </div>
   )
-}
+}
