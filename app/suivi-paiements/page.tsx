@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, useCallback } from 'react';
 import { MainLayout } from '@/components/main-layout';
 import { Payment, Office } from '@/lib/types';
 import * as XLSX from 'xlsx';
-import { exportToXLSX } from '@/lib/utils';
+import { exportToXLSX, formatCurrency } from '@/lib/utils';
 import {
   Select,
   SelectContent,
@@ -130,7 +130,7 @@ function HeatCell({ payment, monthLabel, onPay, onEdit }: { payment: MonthPaymen
               </span>
             </div>
             <p className="text-xs font-bold text-white mt-0.5">
-              {payment.amount.toLocaleString('fr-FR')},00 MAD
+              {formatCurrency(payment.amount)}
             </p>
             <div
               className="absolute top-full left-1/2 -translate-x-1/2 -mt-px"

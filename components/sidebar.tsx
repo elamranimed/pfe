@@ -61,19 +61,19 @@ export function Sidebar() {
       <nav className="flex-1 p-4 space-y-2">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href;
+          const isActive = item.href === '/' ? pathname === '/' : pathname?.startsWith(item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
+                'flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-sm font-medium',
                 isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                  ? 'bg-gradient-to-r from-[#0d2847] to-[#1a5298] hover:from-[#0a1e3d] hover:to-[#154985] text-white font-medium shadow-lg shadow-blue-900/20 hover:shadow-xl hover:shadow-blue-900/30'
+                  : 'text-muted-foreground hover:bg-accent/70 hover:text-accent-foreground'
               )}
             >
-              <Icon className="w-5 h-5" />
+              <Icon className={cn('w-5 h-5 shrink-0 transition-transform', isActive && 'text-white')} />
               <span>{item.label}</span>
             </Link>
           );
@@ -81,9 +81,9 @@ export function Sidebar() {
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
         >
-          <LogOut className="w-5 h-5" />
+          <LogOut className="w-5 h-5 shrink-0" />
           <span>Déconnexion</span>
         </button>
       </nav>

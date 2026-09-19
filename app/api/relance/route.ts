@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import { formatCurrency } from '@/lib/utils';
 
 export async function POST(request: NextRequest) {
     console.log("TEST API");
@@ -166,7 +167,7 @@ export async function POST(request: NextRequest) {
               </tr>
               <tr>
                 <td class="label">Montant total dû</td>
-                <td class="value"><span class="amount">${montantCumul.toLocaleString('fr-MA', { minimumFractionDigits: 2 })} DH</span></td>
+                <td class="value"><span class="amount">${formatCurrency(montantCumul)}</span></td>
               </tr>
             </table>
             
@@ -207,7 +208,7 @@ Nous vous contactons concernant votre bureau n°${officeNumber}.
 
 Bureau : #${officeNumber}
 Nombre de mois impayés : ${moisImpayes} mois
-Montant total dû : ${montantCumul.toLocaleString('fr-MA', { minimumFractionDigits: 2 })} DH
+Montant total dû : ${formatCurrency(montantCumul)}
 
 Nous vous prions de bien vouloir régulariser votre situation dans les plus brefs délais afin d'éviter toute mesure supplémentaire.
 
