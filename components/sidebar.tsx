@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Building, CreditCard, Receipt, ShieldAlert, MessageSquareWarning, LogOut } from 'lucide-react';
+import { LayoutDashboard, Building, CreditCard, Receipt, ShieldAlert, MessageSquareWarning, Users, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function Sidebar() {
@@ -39,6 +39,11 @@ export function Sidebar() {
       href: '/demandes',
       label: 'Demandes',
       icon: MessageSquareWarning,
+    },
+    {
+      href: '/responsables',
+      label: 'Responsables',
+      icon: Users,
     },
   ];
 
