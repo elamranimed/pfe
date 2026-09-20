@@ -41,6 +41,7 @@ export function PaymentsTable({
   const [modalMode, setModalMode] = useState<'add' | 'edit' | 'view'>('add');
   const [editingPayment, setEditingPayment] = useState<PaymentPayload | undefined>();
   const [submitting, setSubmitting] = useState(false);
+  const [permissionMessage, setPermissionMessage] = useState<string | null>(null);
 
   const getPaymentTypeBadge = (type: string | undefined) => {
     const types: Record<string, { label: string; variant: any }> = {
@@ -66,6 +67,11 @@ export function PaymentsTable({
   };
 
   const openEdit = (p: Payment) => {
+    if (userRole !== 'admin') {
+      setPermissionMessage('Modification interdite : cette opération est réservée à l’administrateur.');
+      return;
+    }
+
     const bureauId = p.officeId || offices.find(o => o.number === p.officeNumber)?.id || '';
     setEditingPayment({
       id: p.id,
@@ -167,16 +173,16 @@ export function PaymentsTable({
             >
               <Eye className="w-4 h-4" />
             </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => openEdit(p)}
+              title={userRole === 'admin' ? 'Modifier' : 'Modification réservée à l’administrateur'}
+              aria-label={userRole === 'admin' ? 'Modifier' : 'Modification réservée à l’administrateur'}
+            >
+              <Edit2 className="w-4 h-4" />
+            </Button>
             {userRole === 'admin' && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => openEdit(p)}
-                  title="Modifier"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </Button>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -186,7 +192,6 @@ export function PaymentsTable({
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
-              </>
             )}
           </div>
         );
@@ -196,6 +201,15 @@ export function PaymentsTable({
 
   return (
     <div>
+      {permissionMessage && (
+        <div
+          role="alert"
+          className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+        >
+          {permissionMessage}
+        </div>
+      )}
+
       {userRole === 'admin' && (
         <div className="mb-4">
           <Button onClick={openAdd} className="gap-2">

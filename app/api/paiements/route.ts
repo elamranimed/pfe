@@ -15,7 +15,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const user = await AuthService.requireAuth(request, ['admin', 'responsable'])
+    const user = await AuthService.requireAuth(request, ['admin'])
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     const data = await request.json()
     const item = await PaiementService.create(data)
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const user = await AuthService.requireAuth(request, ['admin', 'responsable'])
+    const user = await AuthService.requireAuth(request, ['admin'])
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     const { id, data } = await request.json()
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })

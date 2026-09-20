@@ -35,6 +35,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
+import { getUserRole } from '@/lib/auth';
 
 /* ─── Types & Constants ─── */
 type PaymentStatus = 'paye' | 'non_paye';
@@ -182,6 +183,7 @@ const mapPaiementDto = (p: any, bureauMap: Record<string, Office>): Payment => {
 export default function SuiviPaiementsPage() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [offices, setOffices] = useState<Office[]>([]);
+  const [userRole, setUserRole] = useState<'admin' | 'responsable' | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -190,6 +192,7 @@ export default function SuiviPaiementsPage() {
   const [selectedYear, setSelectedYear] = useState(String(new Date().getFullYear()));
   const [pendingQuickPay, setPendingQuickPay] = useState<{officeId: string, monthIndex: number, existingPayment?: Payment} | null>(null);
   const [pendingEditPayment, setPendingEditPayment] = useState<Payment | null>(null);
+  const [permissionMessage, setPermissionMessage] = useState<string | null>(null);
   
   const { toast } = useToast();
 
@@ -222,10 +225,16 @@ export default function SuiviPaiementsPage() {
   }, []);
 
   useEffect(() => {
+    setUserRole(getUserRole());
     fetchData().finally(() => setLoading(false));
   }, [fetchData]);
 
   const handleQuickPay = async (officeId: string, monthIndex: number, existingPayment?: Payment) => {
+    if (userRole !== 'admin') {
+      setPermissionMessage('Opération interdite : la modification des paiements est réservée à l’administrateur.');
+      return;
+    }
+
     const office = offices.find(o => o.id === officeId);
     if (!office) return;
     
@@ -472,8 +481,20 @@ export default function SuiviPaiementsPage() {
           <HeatCell 
             payment={row.original.months[mi]} 
             monthLabel={`${MONTHS_FULL[mi]} ${selectedYear}`} 
-            onPay={() => setPendingQuickPay({ officeId: row.original.id, monthIndex: mi, existingPayment: row.original.months[mi].paymentObj })}
+            onPay={() => {
+              if (userRole !== 'admin') {
+                setPermissionMessage('Opération interdite : la modification des paiements est réservée à l’administrateur.');
+                return;
+              }
+
+              setPendingQuickPay({ officeId: row.original.id, monthIndex: mi, existingPayment: row.original.months[mi].paymentObj });
+            }}
             onEdit={() => {
+              if (userRole !== 'admin') {
+                setPermissionMessage('Opération interdite : la modification des paiements est réservée à l’administrateur.');
+                return;
+              }
+
               if (row.original.months[mi].paymentObj) {
                 setPendingEditPayment(row.original.months[mi].paymentObj!);
               }
@@ -484,7 +505,7 @@ export default function SuiviPaiementsPage() {
     });
 
     return cols;
-  }, [selectedYear, offices, payments]); 
+  }, [selectedYear, offices, payments, userRole]);
 
   const exportXLSX = () => {
     const headers = ['Bureau', 'Locataire', ...MONTHS];
@@ -559,6 +580,12 @@ export default function SuiviPaiementsPage() {
           <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-xl">{error}</div>
         )}
 
+        {permissionMessage && (
+          <div role="alert" className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-xl">
+            {permissionMessage}
+          </div>
+        )}
+
         <div className="rounded-2xl overflow-hidden bg-card border border-border shadow-sm">
           {/* Toolbar */}
           <div className="flex flex-wrap items-center justify-between gap-4 px-6 py-4 border-b border-border">
@@ -609,18 +636,19 @@ export default function SuiviPaiementsPage() {
                 <Download className="w-4 h-4" />
                 Exporter XLSX
               </Button>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button className="flex items-center gap-2" variant="default">
-                    <Plus className="w-4 h-4" />
-                    Ajouter Paiement
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Ajouter un paiement</DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleManualAddPayment} className="space-y-4 mt-4">
+              {userRole === 'admin' && (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button className="flex items-center gap-2" variant="default">
+                      <Plus className="w-4 h-4" />
+                      Ajouter Paiement
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Ajouter un paiement</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleManualAddPayment} className="space-y-4 mt-4">
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Bureau</label>
                       <select name="bureauId" required className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
@@ -646,9 +674,10 @@ export default function SuiviPaiementsPage() {
                       </select>
                     </div>
                     <Button type="submit" className="w-full">Enregistrer le paiement</Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              )}
             </div>
           </div>
 
