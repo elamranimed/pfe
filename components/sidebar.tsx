@@ -2,11 +2,18 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { LayoutDashboard, Building, CreditCard, Receipt, ShieldAlert, MessageSquareWarning, Users, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getUserRole } from '@/lib/auth';
 
 export function Sidebar() {
   const pathname = usePathname();
+  const [role, setRole] = useState<'admin' | 'responsable' | null>(null);
+
+  useEffect(() => {
+    setRole(getUserRole());
+  }, []);
 
   const navItems = [
     {
@@ -65,6 +72,8 @@ export function Sidebar() {
 
       <nav className="flex-1 p-4 space-y-2">
         {navItems.map((item) => {
+          if (item.href === '/responsables' && role !== 'admin') return null;
+
           const Icon = item.icon;
           const isActive = item.href === '/' ? pathname === '/' : pathname?.startsWith(item.href);
           return (
