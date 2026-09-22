@@ -43,7 +43,10 @@ export default function DepensesPage() {
             description: d.description,
             supplier: d.provider,
             amount: d.amount,
-            status: 'paid'
+            status: 'paid',
+            createdAt: d.created_at
+              ? new Date(d.created_at).toISOString()
+              : new Date(d.date).toISOString()
           })));
         } else {
           console.error('Unexpected data format:', data);

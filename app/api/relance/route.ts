@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { formatCurrency } from '@/lib/utils';
+import AuthService from '@/services/AuthService';
 
 export async function POST(request: NextRequest) {
+  const user = await AuthService.requireAuth(request, ['admin']);
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
     console.log("TEST API");
     console.log('🔵 API /api/relance appelée');
   

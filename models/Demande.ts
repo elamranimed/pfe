@@ -5,6 +5,7 @@ export interface DemandeProps {
 	objet: Objet
 	created_at?: Date
 	created_by: string
+	sujet?: string | null
 	bureauId?: number | null
 	userId?: number | null
 }
@@ -14,6 +15,7 @@ export class Demande {
 	objet: Objet
 	created_at: Date
 	created_by: string
+	sujet?: string | null
 	bureauId?: number | null
 	userId?: number | null
 
@@ -22,6 +24,7 @@ export class Demande {
 		this.objet = props.objet
 		this.created_at = props.created_at ?? new Date()
 		this.created_by = props.created_by
+		this.sujet = props.sujet ?? null
 		this.bureauId = props.bureauId ?? null
 		this.userId = props.userId ?? null
 	}

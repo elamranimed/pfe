@@ -202,6 +202,7 @@ export function OfficesTable({
 
       <OfficeDetailsModal
         office={selectedOffice}
+        userRole={userRole}
         onOpenChange={(open) => {
           if (!open) setSelectedOffice(null);
         }}

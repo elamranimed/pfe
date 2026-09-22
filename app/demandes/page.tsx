@@ -13,6 +13,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { exportToXLSX } from '@/lib/utils';
 import { getUserRole } from '@/lib/auth';
+import { useToast } from '@/hooks/use-toast';
 
 export default function DemandesPage() {
   const [demandes, setDemandes] = useState<any[]>([]);
@@ -24,6 +25,7 @@ export default function DemandesPage() {
   const [isViewMode, setIsViewMode] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [role, setRole] = useState<'admin' | 'responsable' | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     setRole(getUserRole());
@@ -77,13 +79,19 @@ export default function DemandesPage() {
           body: JSON.stringify(newDemande)
         });
         if (res.ok) {
+          const createdDemande = await res.json();
+          setDemandes((current) => [createdDemande, ...current]);
           setIsModalOpen(false);
           setNewDemande({ objet: 'reclamation', created_by: '', sujet: '' });
           fetchDemandes();
+        } else {
+          const result = await res.json().catch(() => null);
+          toast({ variant: 'destructive', title: 'Erreur', description: result?.error || 'La demande n’a pas pu être enregistrée.' });
         }
       }
     } catch (err) {
       console.error(err);
+      toast({ variant: 'destructive', title: 'Erreur', description: 'La demande n’a pas pu être enregistrée.' });
     } finally {
       setSubmitting(false);
     }
@@ -143,7 +151,14 @@ export default function DemandesPage() {
               {role === 'responsable' && (
                 <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                   <DialogTrigger asChild>
-                    <Button className="gap-2">
+                    <Button
+                      className="gap-2"
+                      onClick={() => {
+                        setEditingDemandeId(null);
+                        setIsViewMode(false);
+                        setNewDemande({ objet: 'reclamation', created_by: '', sujet: '' });
+                      }}
+                    >
                       <Plus className="w-4 h-4" />
                       Nouvelle demande
                     </Button>
@@ -181,17 +196,28 @@ export default function DemandesPage() {
                           required
                         />
                       </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="sujet">Sujet</Label>
+                        <textarea
+                          id="sujet"
+                          placeholder="Détails de la demande"
+                          value={newDemande.sujet}
+                          onChange={(e) => setNewDemande({ ...newDemande, sujet: e.target.value })}
+                          className="w-full px-3 py-2 border border-input rounded-md text-sm"
+                          rows={3}
+                        />
+                      </div>
                     </div>
                     <DialogFooter>
                       <Button type="button" variant="outline" onClick={() => {
                         setIsModalOpen(false);
                         setEditingDemandeId(null);
                         setIsViewMode(false);
-                        setNewDemande({ objet: 'reclamation', created_by: '' });
+                        setNewDemande({ objet: 'reclamation', created_by: '', sujet: '' });
                       }}>Annuler</Button>
                       {!isViewMode && (
                         <Button type="submit" disabled={submitting}>
-                          {submitting ? 'Enregistrement...' : (editingDemandeId ? 'Modifier' : 'Créer')}
+                          {submitting ? 'Enregistrement...' : (editingDemandeId ? 'Modifier' : 'Enregistrer')}
                         </Button>
                       )}
                     </DialogFooter>
@@ -235,9 +261,6 @@ export default function DemandesPage() {
                               <>
                                 <Button variant="ghost" size="icon" onClick={() => handleEditClick(d)} className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
                                   <Pencil className="h-4 w-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon" onClick={() => handleDelete(d.id_demande)} className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50">
-                                  <Trash2 className="h-4 w-4" />
                                 </Button>
                               </>
                             )}
@@ -339,7 +362,7 @@ export default function DemandesPage() {
                 }}>Annuler</Button>
                 {!isViewMode && (
                   <Button type="submit" disabled={submitting}>
-                    {submitting ? 'Enregistrement...' : (editingDemandeId ? 'Modifier' : 'Créer')}
+                    {submitting ? 'Enregistrement...' : (editingDemandeId ? 'Modifier' : 'Enregistrer')}
                   </Button>
                 )}
               </DialogFooter>

@@ -10,6 +10,7 @@ import { Download, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { exportToXLSX } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { getUserRole } from '@/lib/auth';
 
 const mapBureauToOffice = (b: any): Office => ({
   id: String(b.id_bureau),
@@ -31,10 +32,17 @@ export default function RecouvrementPage() {
   const [paiements, setPaiements] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [role, setRole] = useState<'admin' | 'responsable' | null>(null);
+  const [roleLoaded, setRoleLoaded] = useState(false);
 
   const [sendingEmails, setSendingEmails] = useState<Set<string>>(new Set());
   const [sentEmails, setSentEmails] = useState<Set<string>>(new Set());
   const { toast } = useToast();
+
+  useEffect(() => {
+    setRole(getUserRole());
+    setRoleLoaded(true);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -258,14 +266,16 @@ export default function RecouvrementPage() {
                 <Download className="w-4 h-4" />
                 Exporter XLSX
               </Button>
-              <Button
-                onClick={sendAllRelances}
-                variant="destructive"
-                disabled={unpaidOffices.filter(u => u.office.email).length === 0}
-              >
-                <Mail className="w-4 h-4 mr-2" />
-                Envoyer toutes les relances
-              </Button>
+              {roleLoaded && role === 'admin' && (
+                <Button
+                  onClick={sendAllRelances}
+                  variant="destructive"
+                  disabled={unpaidOffices.filter(u => u.office.email).length === 0}
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  Envoyer toutes les relances
+                </Button>
+              )}
             </div>
           </CardHeader>
 
@@ -277,6 +287,7 @@ export default function RecouvrementPage() {
               loading={loading}
               sendingEmails={sendingEmails}
               sentEmails={sentEmails}
+              canSendRelance={roleLoaded && role === 'admin'}
               onSendRelance={sendRelance}
             />
           </CardContent>

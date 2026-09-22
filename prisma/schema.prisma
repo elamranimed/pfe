@@ -39,6 +39,7 @@ model Demande {
   objet      Objet
   created_at DateTime? @default(now()) @db.Timestamp(6)
   created_by String    @db.VarChar(255)
+  sujet      String?   @db.Text
   bureauid   Int?
   userid     Int?
   Bureau     Bureau?   @relation(fields: [bureauid], references: [id_bureau], onDelete: NoAction, onUpdate: NoAction)

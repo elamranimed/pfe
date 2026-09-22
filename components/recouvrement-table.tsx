@@ -21,6 +21,7 @@ interface RecouvrementTableProps {
   loading: boolean;
   sendingEmails: Set<string>;
   sentEmails: Set<string>;
+  canSendRelance: boolean;
   onSendRelance: (office: Office, montantCumul: number, moisImpayes: number) => void;
 }
 
@@ -29,6 +30,7 @@ export function RecouvrementTable({
   loading,
   sendingEmails,
   sentEmails,
+  canSendRelance,
   onSendRelance
 }: RecouvrementTableProps) {
   const columns: ColumnDef<UnpaidOffice>[] = useMemo(() => [
@@ -90,10 +92,10 @@ export function RecouvrementTable({
         </Badge>
       ),
     },
-    {
+    ...(canSendRelance ? [{
       id: 'action',
       header: 'Action',
-      cell: ({ row }) => {
+      cell: ({ row }: { row: { original: UnpaidOffice } }) => {
         const { office, montantCumul, moisImpayes } = row.original;
         const isSending = sendingEmails.has(office.id);
         const isSent = sentEmails.has(office.id);
@@ -118,8 +120,8 @@ export function RecouvrementTable({
           </Button>
         );
       },
-    },
-  ], [sendingEmails, sentEmails]);
+    }] : []),
+  ], [canSendRelance, sendingEmails, sentEmails, onSendRelance]);
 
   if (loading) {
     return <p className="text-muted-foreground py-6 text-center">Chargement...</p>;

@@ -8,6 +8,7 @@ import { formatCurrency } from '@/lib/utils';
 
 interface OfficeDetailsModalProps {
   office: Office | null;
+  userRole: 'admin' | 'responsable';
   onOpenChange: (open: boolean) => void;
 }
 
@@ -28,27 +29,27 @@ const TYPES: Record<string, string> = {
   'meeting-room': 'Salle de Réunion',
 };
 
-function row(label: string, value: React.ReactNode, alwaysShow = false) {
-  if (!alwaysShow && !value) return null;
+function row(label: string, value: React.ReactNode, alwaysShow = false, isResponsable = false) {
+  if (!alwaysShow && (value === null || value === undefined || value === '')) return null;
   return (
     <div>
-      <p className="text-sm text-slate-600 mb-1">{label}</p>
-      <div className="font-semibold text-slate-900">{value}</div>
+      <p className={`text-sm mb-1 ${isResponsable ? 'text-muted-foreground' : 'text-slate-600'}`}>{label}</p>
+      <div className={`font-semibold ${isResponsable ? 'text-foreground' : 'text-slate-900'}`}>{value}</div>
     </div>
   );
 }
 
-function rowFull(label: string, value: React.ReactNode) {
+function rowFull(label: string, value: React.ReactNode, isResponsable = false) {
   if (!value) return null;
   return (
     <div className="col-span-2">
-      <p className="text-sm text-slate-600 mb-1">{label}</p>
-      <div className="font-semibold text-slate-900">{value}</div>
+      <p className={`text-sm mb-1 ${isResponsable ? 'text-muted-foreground' : 'text-slate-600'}`}>{label}</p>
+      <div className={`font-semibold ${isResponsable ? 'text-foreground' : 'text-slate-900'}`}>{value}</div>
     </div>
   );
 }
 
-export function OfficeDetailsModal({ office, onOpenChange }: OfficeDetailsModalProps) {
+export function OfficeDetailsModal({ office, userRole, onOpenChange }: OfficeDetailsModalProps) {
   if (!office) return null;
 
   const { tenant } = office;
@@ -56,6 +57,7 @@ export function OfficeDetailsModal({ office, onOpenChange }: OfficeDetailsModalP
   const phone = clean(tenant?.phone) || clean((office as any).telephone);
   const email = clean(tenant?.email) || clean((office as any).email);
   const status = STATUS[office.status] ?? { label: office.status, className: 'bg-slate-100 text-slate-700' };
+  const isResponsable = userRole === 'responsable';
 
   return (
     <Dialog open onOpenChange={onOpenChange}>
@@ -66,28 +68,28 @@ export function OfficeDetailsModal({ office, onOpenChange }: OfficeDetailsModalP
 
         <div className="space-y-6">
           <Card className="p-4">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">Informations Bureau</h3>
+            <h3 className={`text-lg font-semibold mb-4 ${isResponsable ? 'text-foreground' : 'text-slate-900'}`}>Informations Bureau</h3>
             <div className="grid grid-cols-2 gap-4">
-              {row('Numéro', office.number)}
-              {row('Nom du Bureau', name, true)}
-              {row('Étage', office.floor)}
-              {row('Type', TYPES[office.type] ?? office.type)}
-              {row('Téléphone', phone && <a href={`tel:${phone}`} className="underline">{phone}</a>)}
-              {row('Email', email && <a href={`mailto:${email}`} className="underline">{email}</a>)}
-              {row('Cotisation Mensuelle', formatCurrency(office.cotisation))}
-              {row('Statut', <Badge className={status.className}>{status.label}</Badge>)}
-              {rowFull('Notes', office.notes && <span className="whitespace-pre-wrap">{office.notes}</span>)}
+              {row('Numéro', isResponsable ? office.number || '-' : office.number, false, isResponsable)}
+              {row('Nom du Bureau', isResponsable ? name || '-' : name, true, isResponsable)}
+              {row('Étage', isResponsable ? office.floor ?? '-' : office.floor, false, isResponsable)}
+              {row('Type', TYPES[office.type] ?? office.type, false, isResponsable)}
+              {row('Téléphone', isResponsable ? (phone ? <a href={`tel:${phone}`} className="underline">{phone}</a> : '-') : (phone && <a href={`tel:${phone}`} className="underline">{phone}</a>), false, isResponsable)}
+              {row('Email', isResponsable ? (email ? <a href={`mailto:${email}`} className="underline">{email}</a> : '-') : (email && <a href={`mailto:${email}`} className="underline">{email}</a>), false, isResponsable)}
+              {row('Cotisation Mensuelle', formatCurrency(office.cotisation), false, isResponsable)}
+              {row('Statut', <Badge className={status.className}>{status.label}</Badge>, false, isResponsable)}
+              {rowFull('Notes', office.notes && <span className="whitespace-pre-wrap">{office.notes}</span>, isResponsable)}
             </div>
           </Card>
 
           <Card className="p-4">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">Informations Locataire</h3>
+            <h3 className={`text-lg font-semibold mb-4 ${isResponsable ? 'text-foreground' : 'text-slate-900'}`}>Informations Locataire</h3>
             {tenant ? (
               <div className="grid grid-cols-2 gap-4">
-                {row('Entreprise',    clean(tenant.companyName))}
-                {row('Contact',       clean(tenant.contactName))}
-                {row('Début Contrat', clean(tenant.contractStart))}
-                {row('Fin Contrat',   clean(tenant.contractEnd))}
+                {row('Entreprise',    clean(tenant.companyName), false, isResponsable)}
+                {row('Contact',       clean(tenant.contactName), false, isResponsable)}
+                {row('Début Contrat', clean(tenant.contractStart), false, isResponsable)}
+                {row('Fin Contrat',   clean(tenant.contractEnd), false, isResponsable)}
               </div>
             ) : (
               <p className="text-slate-500 italic">Aucun locataire associé à ce bureau.</p>
